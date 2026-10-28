@@ -71,11 +71,9 @@ def parse_book(html: str, book_url: str) -> Book:
     if len(crumbs) < 3:
         raise ParseError(f"no category breadcrumb on {book_url}")
     cat_link = crumbs[2]
-    cat_url = urljoin(book_url, cat_link["href"])
     category = Category(
+        slug=category_slug(urljoin(book_url, cat_link["href"])),
         name=cat_link.get_text(strip=True),
-        slug=category_slug(cat_url),
-        url=cat_url,
     )
 
     table = {
@@ -83,35 +81,31 @@ def parse_book(html: str, book_url: str) -> Book:
         for row in soup.select("table.table tr")
         if row.th and row.td
     }
-    try:
-        upc = table["UPC"]
-        price_excl = parse_money(table["Price (excl. tax)"])
-        price_incl = parse_money(table["Price (incl. tax)"])
-        tax = parse_money(table["Tax"])
-        stock = parse_stock(table["Availability"])
-        num_reviews = int(table["Number of reviews"])
-    except KeyError as missing:
-        raise ParseError(f"missing {missing} in product table on {book_url}") from None
+    price_tag = main.select_one("p.price_color")
+    if "UPC" not in table or "Availability" not in table or price_tag is None:
+        raise ParseError(f"missing UPC, availability or price on {book_url}")
 
     desc_header = soup.select_one("#product_description")
     desc_p = desc_header.find_next_sibling("p") if desc_header else None
-    description = desc_p.get_text(strip=True) if desc_p else None
+    description = clean_description(desc_p.get_text(strip=True)) if desc_p else None
 
     img = soup.select_one("#product_gallery img[src]")
     image_url = urljoin(book_url, img["src"]) if img else None
 
     return Book(
-        upc=upc,
+        upc=table["UPC"],
         title=title,
         category=category,
-        price_excl_tax=price_excl,
-        price_incl_tax=price_incl,
-        tax=tax,
-        stock=stock,
+        price=parse_money(price_tag.get_text(strip=True)),
+        stock=parse_stock(table["Availability"]),
         rating=RATING_WORDS[rating_word],
-        num_reviews=num_reviews,
         url=book_url,
-        product_type=table.get("Product Type"),
         description=description,
         image_url=image_url,
     )
+
+
+def clean_description(text: str) -> str | None:
+    """Drop the site's trailing '...more' link text."""
+    text = text.removesuffix("...more").strip()
+    return text or None

@@ -37,7 +37,7 @@ def main() -> int:
         print("ok   cleanup: test row deleted")
 
         for table in TABLES:
-            client.select(table, columns="id", limit="1")
+            client.select(table, limit="1")
             print(f"ok   table: {table}")
     except (SupabaseError, AssertionError) as exc:
         print(f"FAIL {exc}")

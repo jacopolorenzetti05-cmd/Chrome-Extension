@@ -5,6 +5,7 @@ local SQLite file for testing. Design notes: [`docs/DESIGN.md`](docs/DESIGN.md).
 
 ```
 categories 1 ──< books 1 ──< book_snapshots >── 1 scrape_runs
+   slug          upc            (run_id, upc)          id
 ```
 
 ## Layout
@@ -47,8 +48,12 @@ python scrape.py --sink supabase
 Re-running is safe: categories upsert on `slug`, books on `upc`, and each run adds one
 `scrape_runs` row plus one `book_snapshots` row per book (price/stock history).
 
+If you already ran an earlier `schema.sql` in Supabase, run the `drop` lines at the top of
+the file first, then the whole file again.
+
 ## Notes
 
-* The site has **no author field**, so there is no `authors` table — see DESIGN.md.
+* No author (not on the site) and no tax/review/product-type columns (constant on every
+  book) — see DESIGN.md.
 * Uses the `service_role` key, which bypasses Row Level Security. To use the `anon`
   key instead, add RLS policies that allow inserts/updates on these tables.

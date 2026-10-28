@@ -3,62 +3,68 @@
 Source: **https://books.toscrape.com** only (a sandbox site built for scraping practice).
 Target: a relational database (Supabase / Postgres) with linked tables.
 
-## 1. What the site actually exposes
+## 1. What the site exposes, and what we keep
 
-| Where | Field | Notes |
+Every book is read from its detail page (the deepest level the site has; the reviews
+page linked from it returns 404).
+
+| Field | Where on the page | Kept? |
 |---|---|---|
-| Listing page `/catalogue/page-N.html` | link to each book | 20 books/page, 50 pages, 1000 books. `li.next` tells us if there's another page. |
-| Detail page `h1` | title | full title (listing titles are truncated with `...`) |
-| Detail page `p.star-rating <Word>` | rating | `One`..`Five` → 1..5 |
-| Detail page `#product_description + p` | description | missing on a few books → `NULL` |
-| Detail page breadcrumb, 3rd item | category | e.g. `Poetry`, link `../category/books/poetry_23/index.html` |
-| Detail page `table` | UPC, Product Type, Price excl/incl tax, Tax, Availability, Number of reviews | prices in `£` |
-| Detail page `#product_gallery img` | cover image URL | relative → made absolute |
-
-**There is no author on books.toscrape.com.** The schema leaves out an `authors` table
-on purpose: filling it would mean making data up. If authors are needed later they
-must come from another source (e.g. an ISBN lookup), and the place for them is an
-`authors` + `book_authors` pair of tables (many-to-many).
+| title | `h1` | yes |
+| price | `p.price_color` | yes, one `price` in GBP |
+| stock | "In stock (22 available)" | yes, as a number |
+| rating | `p.star-rating Three` | yes, 1–5 |
+| category | breadcrumb, 3rd item | yes, as a link to `categories` |
+| UPC | product table | yes, the book's key |
+| description | `#product_description + p` | yes, with the trailing "...more" removed |
+| cover image | `#product_gallery img` | yes, as an absolute URL |
+| price excl./incl. tax, tax | product table | **no**: tax is 0.00 on every book, so both prices equal `price` |
+| product type | product table | **no**: always "Books" |
+| number of reviews | product table | **no**: always 0 |
+| author | — | not on the site, and not needed |
 
 ## 2. Database schema
 
+One identifier per thing, and nothing stored that can be worked out from something else.
+
 ```
 categories 1 ──< books 1 ──< book_snapshots >── 1 scrape_runs
+   slug          upc            (run_id, upc)          id
 ```
 
-* **categories** — one row per genre. Natural key: `slug`.
-* **books** — one row per book. Natural key: `upc` (unique on the site). Holds the
-  *current* state (latest price/stock) plus `first_seen_at` / `last_seen_at`.
-* **scrape_runs** — one row per execution of the scraper (when it ran, how many books, status).
-* **book_snapshots** — what a book looked like during one run (price, stock, rating).
-  This is the link between books and runs and gives price/stock history across runs.
-  Unique on `(run_id, book_id)`.
-* **connection_test** — a scratch table used only by the Supabase smoke test.
+| Table | Key | Columns | Links |
+|---|---|---|---|
+| `categories` | `slug` (from the site, e.g. `poetry_23`) | name | — |
+| `books` | `upc` (the site's product code) | title, price, stock, rating, description, image_url, url | `category_slug` → categories |
+| `scrape_runs` | `id` (generated) | started_at, finished_at, status, pages_scraped, errors | — |
+| `book_snapshots` | `(run_id, upc)` | price, stock | `run_id` → scrape_runs, `upc` → books |
 
-Full DDL: `db/schema.sql` (Postgres/Supabase). `scraper/store.py` creates the same
-tables in SQLite for local runs and tests.
+Left out because they are derivable:
+* a category's URL → `https://books.toscrape.com/catalogue/category/books/<slug>/index.html`
+* books scraped in a run → `count(*)` of that run's snapshots
+* when a book was first/last seen → `min`/`max` of `started_at` over its snapshots
+* a snapshot's time → its run's `started_at`
 
-Money is `numeric(10,2)` in Postgres (never float), parsed with `Decimal`.
+Full DDL: `db/schema.sql`. `scraper/store.py` creates the same tables in SQLite for local runs.
+Money is `numeric(10,2)` (never float), parsed with `Decimal`.
 
 ## 3. Data flow
 
 ```
 fetch.py            parse.py               models.py            store.py
 HTTP GET  ──html──▶ parse_listing()  ──▶   (book URLs)
-HTTP GET  ──html──▶ parse_book()     ──▶   Book + Category ──▶  Sink.save_run(...)
+HTTP GET  ──html──▶ parse_book()     ──▶   Book + Category ──▶  Sink.save(...)
                                            (validated)          ├─ SqliteSink   (local)
                                                                 └─ SupabaseSink (REST API)
 ```
 
 1. **Fetch** — one `requests.Session`, retries with backoff on 429/5xx, a timeout,
-   and a small delay so we stay polite. Detail pages are fetched with a small thread pool.
-2. **Parse** — pure functions: HTML string in, plain dict out. No network, so they
-   can be tested against saved HTML in `tests/fixtures/`.
-3. **Model + validate** — dicts become `Category` / `Book` dataclasses; `validate()`
-   checks the invariants (UPC present, rating 1–5, `price_incl = price_excl + tax`,
-   stock ≥ 0). Bad records are logged and skipped, not written.
-4. **Store** — a sink writes in dependency order: run → categories → books → snapshots,
-   using upserts on the natural keys so re-running never creates duplicates.
+   a small delay between requests, a small thread pool for detail pages.
+2. **Parse** — pure functions, HTML in, records out; tested on saved pages in `tests/fixtures/`.
+3. **Validate** — UPC and title present, rating 1–5, price and stock ≥ 0. Bad records are
+   logged, counted in `scrape_runs.errors`, and skipped.
+4. **Store** — in foreign-key order: run → categories → books → snapshots. Upserts on the
+   keys (`slug`, `upc`, `(run_id, upc)`) so re-running never creates duplicates.
 
 ## 4. Build path
 
@@ -66,5 +72,5 @@ HTTP GET  ──html──▶ parse_book()     ──▶   Book + Category ─�
 2. Scraper + local sink → check the data end to end (`python scrape.py --sink sqlite --limit 40`).
 3. Supabase smoke test: write one row into `connection_test`, read it back
    (`python scripts/supabase_smoke_test.py`).
-4. Test connection to the real tables (smoke test also checks that `books` etc. exist).
+4. Same script checks the scraper tables are reachable.
 5. Merge: `python scrape.py --sink supabase`.

@@ -7,7 +7,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from scraper.models import Book, Category, ScrapeRun
-from scraper.parse import ParseError, parse_book, parse_listing, parse_stock
+from scraper.parse import ParseError, clean_description, parse_book, parse_listing, parse_stock
 from scraper.store import SqliteSink, SupabaseSink
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -18,13 +18,11 @@ def fixture(name: str) -> str:
     return (FIXTURES / name).read_text(encoding="utf-8")
 
 
-def make_book(upc="u1", title="T", slug="poetry_23", price="10.00", stock=3) -> Book:
+def make_book(upc="u1", slug="poetry_23", price="10.00", stock=3) -> Book:
     return Book(
-        upc=upc, title=title,
-        category=Category(name=slug.split("_")[0].title(), slug=slug,
-                          url=f"https://books.toscrape.com/catalogue/category/books/{slug}/index.html"),
-        price_excl_tax=Decimal(price), price_incl_tax=Decimal(price), tax=Decimal("0.00"),
-        stock=stock, rating=3, num_reviews=0,
+        upc=upc, title="T",
+        category=Category(slug=slug, name=slug.split("_")[0].title()),
+        price=Decimal(price), stock=stock, rating=3,
         url=f"https://books.toscrape.com/catalogue/{upc}/index.html",
     )
 
@@ -47,17 +45,12 @@ class ParseTests(unittest.TestCase):
         book = parse_book(fixture("book_detail.html"), BOOK_URL)
         self.assertEqual(book.upc, "a897fe39b1053632")
         self.assertEqual(book.title, "A Light in the Attic")
-        self.assertEqual(book.price_excl_tax, Decimal("51.77"))
-        self.assertEqual(book.price_incl_tax, Decimal("51.77"))
-        self.assertEqual(book.tax, Decimal("0.00"))
+        self.assertEqual(book.price, Decimal("51.77"))
         self.assertEqual(book.stock, 22)
         self.assertEqual(book.rating, 3)
-        self.assertEqual(book.num_reviews, 0)
-        self.assertEqual(book.product_type, "Books")
-        self.assertEqual(book.category, Category(
-            name="Poetry", slug="poetry_23",
-            url="https://books.toscrape.com/catalogue/category/books/poetry_23/index.html"))
+        self.assertEqual(book.category, Category(slug="poetry_23", name="Poetry"))
         self.assertTrue(book.description.startswith("It's hard to imagine a world without"))
+        self.assertFalse(book.description.endswith("more"))
         self.assertTrue(book.image_url.startswith("https://books.toscrape.com/media/cache/"))
         self.assertEqual(book.validate(), [])
 
@@ -67,6 +60,11 @@ class ParseTests(unittest.TestCase):
         with self.assertRaises(ParseError):
             parse_stock("Coming soon")
 
+    def test_clean_description(self):
+        self.assertEqual(clean_description("Good book. ...more"), "Good book.")
+        self.assertEqual(clean_description("No suffix"), "No suffix")
+        self.assertIsNone(clean_description("...more"))
+
     def test_non_product_page_raises(self):
         with self.assertRaises(ParseError):
             parse_book(fixture("listing_page1.html"), BOOK_URL)
@@ -74,11 +72,11 @@ class ParseTests(unittest.TestCase):
 
 class ValidateTests(unittest.TestCase):
     def test_catches_bad_records(self):
-        book = dataclasses.replace(make_book(), rating=7, stock=-1, tax=Decimal("1.00"))
+        book = dataclasses.replace(make_book(), rating=7, stock=-1, price=Decimal("-1"))
         problems = book.validate()
         self.assertTrue(any("rating" in p for p in problems))
         self.assertTrue(any("stock" in p for p in problems))
-        self.assertTrue(any("price mismatch" in p for p in problems))
+        self.assertTrue(any("price" in p for p in problems))
 
 
 class SqliteSinkTests(unittest.TestCase):
@@ -90,7 +88,7 @@ class SqliteSinkTests(unittest.TestCase):
         run = ScrapeRun()
         run_id = self.sink.start_run(run)
         self.sink.save(run_id, books)
-        run.status, run.books_scraped = "success", len(books)
+        run.status = "success"
         self.sink.finish_run(run_id, run)
         return run_id
 
@@ -105,13 +103,12 @@ class SqliteSinkTests(unittest.TestCase):
         self.assertEqual(self.count("books"), 3)
         self.assertEqual(self.count("book_snapshots"), 3)
         rows = self.db.execute(
-            """SELECT b.upc, c.slug FROM books b JOIN categories c ON c.id = b.category_id
+            """SELECT b.upc, c.name FROM books b JOIN categories c ON c.slug = b.category_slug
                ORDER BY b.upc""").fetchall()
         self.assertEqual([tuple(r) for r in rows],
-                         [("u1", "poetry_23"), ("u2", "poetry_23"), ("u3", "travel_2")])
-        run = self.db.execute("SELECT status, books_scraped FROM scrape_runs WHERE id = ?",
-                              (run_id,)).fetchone()
-        self.assertEqual(tuple(run), ("success", 3))
+                         [("u1", "Poetry"), ("u2", "Poetry"), ("u3", "Travel")])
+        status = self.db.execute("SELECT status FROM scrape_runs WHERE id = ?", (run_id,)).fetchone()[0]
+        self.assertEqual(status, "success")
 
     def test_rerun_updates_instead_of_duplicating(self):
         self.run_once([make_book("u1", price="10.00", stock=3)])
@@ -119,11 +116,16 @@ class SqliteSinkTests(unittest.TestCase):
         self.assertEqual(self.count("books"), 1)
         self.assertEqual(self.count("categories"), 1)
         self.assertEqual(self.count("scrape_runs"), 2)
-        price, stock = self.db.execute("SELECT price_incl_tax, stock FROM books").fetchone()
+        price, stock = self.db.execute("SELECT price, stock FROM books").fetchone()
         self.assertEqual((price, stock), ("12.50", 1))
-        history = self.db.execute(
-            "SELECT price_incl_tax FROM book_snapshots ORDER BY run_id").fetchall()
+        history = self.db.execute("SELECT price FROM book_snapshots ORDER BY run_id").fetchall()
         self.assertEqual([r[0] for r in history], ["10.00", "12.50"])
+
+    def test_foreign_keys_are_enforced(self):
+        import sqlite3
+        with self.assertRaises(sqlite3.IntegrityError):
+            self.db.execute("INSERT INTO books (upc, title, category_slug, price, stock, rating, url) "
+                            "VALUES ('x', 't', 'no_such_category', '1.00', 1, 3, 'u')")
 
 
 class FakeSupabase:
@@ -142,7 +144,7 @@ class FakeSupabase:
             if existing:
                 existing.update(row)
             else:
-                existing = {"id": next(self.ids), **row}
+                existing = dict(row) if keys else {"id": next(self.ids), **row}
                 stored.append(existing)
             out.append(dict(existing))
         return out
@@ -171,14 +173,13 @@ class SupabaseSinkTests(unittest.TestCase):
         self.assertEqual(len(t["books"]), 2)
         self.assertEqual(len(t["scrape_runs"]), 2)
         self.assertEqual(len(t["book_snapshots"]), 4)
-        cat_ids = {c["id"] for c in t["categories"]}
-        book_ids = {b["id"] for b in t["books"]}
+        slugs = {c["slug"] for c in t["categories"]}
+        upcs = {b["upc"] for b in t["books"]}
         run_ids = {r["id"] for r in t["scrape_runs"]}
-        self.assertTrue(all(b["category_id"] in cat_ids for b in t["books"]))
-        self.assertTrue(all(s["book_id"] in book_ids and s["run_id"] in run_ids
-                            for s in t["book_snapshots"]))
+        self.assertTrue(all(b["category_slug"] in slugs for b in t["books"]))
+        self.assertTrue(all(s["upc"] in upcs and s["run_id"] in run_ids for s in t["book_snapshots"]))
         u1 = next(b for b in t["books"] if b["upc"] == "u1")
-        self.assertEqual(u1["price_incl_tax"], "11.00")
+        self.assertEqual(u1["price"], "11.00")
         self.assertTrue(all(r["status"] == "success" for r in t["scrape_runs"]))
 
 
