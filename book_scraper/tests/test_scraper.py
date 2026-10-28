@@ -1,0 +1,186 @@
+"""Offline tests: run with `python -m unittest discover tests`."""
+
+import dataclasses
+import itertools
+import unittest
+from decimal import Decimal
+from pathlib import Path
+
+from scraper.models import Book, Category, ScrapeRun
+from scraper.parse import ParseError, parse_book, parse_listing, parse_stock
+from scraper.store import SqliteSink, SupabaseSink
+
+FIXTURES = Path(__file__).parent / "fixtures"
+BOOK_URL = "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html"
+
+
+def fixture(name: str) -> str:
+    return (FIXTURES / name).read_text(encoding="utf-8")
+
+
+def make_book(upc="u1", title="T", slug="poetry_23", price="10.00", stock=3) -> Book:
+    return Book(
+        upc=upc, title=title,
+        category=Category(name=slug.split("_")[0].title(), slug=slug,
+                          url=f"https://books.toscrape.com/catalogue/category/books/{slug}/index.html"),
+        price_excl_tax=Decimal(price), price_incl_tax=Decimal(price), tax=Decimal("0.00"),
+        stock=stock, rating=3, num_reviews=0,
+        url=f"https://books.toscrape.com/catalogue/{upc}/index.html",
+    )
+
+
+class ParseTests(unittest.TestCase):
+    def test_listing_first_page(self):
+        urls, next_url = parse_listing(fixture("listing_page1.html"),
+                                       "https://books.toscrape.com/catalogue/page-1.html")
+        self.assertEqual(len(urls), 20)
+        self.assertEqual(urls[0], BOOK_URL)
+        self.assertEqual(next_url, "https://books.toscrape.com/catalogue/page-2.html")
+
+    def test_listing_last_page_has_no_next(self):
+        urls, next_url = parse_listing(fixture("listing_page50.html"),
+                                       "https://books.toscrape.com/catalogue/page-50.html")
+        self.assertEqual(len(urls), 20)
+        self.assertIsNone(next_url)
+
+    def test_book_detail(self):
+        book = parse_book(fixture("book_detail.html"), BOOK_URL)
+        self.assertEqual(book.upc, "a897fe39b1053632")
+        self.assertEqual(book.title, "A Light in the Attic")
+        self.assertEqual(book.price_excl_tax, Decimal("51.77"))
+        self.assertEqual(book.price_incl_tax, Decimal("51.77"))
+        self.assertEqual(book.tax, Decimal("0.00"))
+        self.assertEqual(book.stock, 22)
+        self.assertEqual(book.rating, 3)
+        self.assertEqual(book.num_reviews, 0)
+        self.assertEqual(book.product_type, "Books")
+        self.assertEqual(book.category, Category(
+            name="Poetry", slug="poetry_23",
+            url="https://books.toscrape.com/catalogue/category/books/poetry_23/index.html"))
+        self.assertTrue(book.description.startswith("It's hard to imagine a world without"))
+        self.assertTrue(book.image_url.startswith("https://books.toscrape.com/media/cache/"))
+        self.assertEqual(book.validate(), [])
+
+    def test_stock_text(self):
+        self.assertEqual(parse_stock("In stock (1 available)"), 1)
+        self.assertEqual(parse_stock("Out of stock"), 0)
+        with self.assertRaises(ParseError):
+            parse_stock("Coming soon")
+
+    def test_non_product_page_raises(self):
+        with self.assertRaises(ParseError):
+            parse_book(fixture("listing_page1.html"), BOOK_URL)
+
+
+class ValidateTests(unittest.TestCase):
+    def test_catches_bad_records(self):
+        book = dataclasses.replace(make_book(), rating=7, stock=-1, tax=Decimal("1.00"))
+        problems = book.validate()
+        self.assertTrue(any("rating" in p for p in problems))
+        self.assertTrue(any("stock" in p for p in problems))
+        self.assertTrue(any("price mismatch" in p for p in problems))
+
+
+class SqliteSinkTests(unittest.TestCase):
+    def setUp(self):
+        self.sink = SqliteSink(":memory:")
+        self.db = self.sink.conn
+
+    def run_once(self, books):
+        run = ScrapeRun()
+        run_id = self.sink.start_run(run)
+        self.sink.save(run_id, books)
+        run.status, run.books_scraped = "success", len(books)
+        self.sink.finish_run(run_id, run)
+        return run_id
+
+    def count(self, table):
+        return self.db.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+
+    def test_rows_are_linked(self):
+        books = [make_book("u1", slug="poetry_23"), make_book("u2", slug="poetry_23"),
+                 make_book("u3", slug="travel_2")]
+        run_id = self.run_once(books)
+        self.assertEqual(self.count("categories"), 2)
+        self.assertEqual(self.count("books"), 3)
+        self.assertEqual(self.count("book_snapshots"), 3)
+        rows = self.db.execute(
+            """SELECT b.upc, c.slug FROM books b JOIN categories c ON c.id = b.category_id
+               ORDER BY b.upc""").fetchall()
+        self.assertEqual([tuple(r) for r in rows],
+                         [("u1", "poetry_23"), ("u2", "poetry_23"), ("u3", "travel_2")])
+        run = self.db.execute("SELECT status, books_scraped FROM scrape_runs WHERE id = ?",
+                              (run_id,)).fetchone()
+        self.assertEqual(tuple(run), ("success", 3))
+
+    def test_rerun_updates_instead_of_duplicating(self):
+        self.run_once([make_book("u1", price="10.00", stock=3)])
+        self.run_once([make_book("u1", price="12.50", stock=1)])
+        self.assertEqual(self.count("books"), 1)
+        self.assertEqual(self.count("categories"), 1)
+        self.assertEqual(self.count("scrape_runs"), 2)
+        price, stock = self.db.execute("SELECT price_incl_tax, stock FROM books").fetchone()
+        self.assertEqual((price, stock), ("12.50", 1))
+        history = self.db.execute(
+            "SELECT price_incl_tax FROM book_snapshots ORDER BY run_id").fetchall()
+        self.assertEqual([r[0] for r in history], ["10.00", "12.50"])
+
+
+class FakeSupabase:
+    """In-memory stand-in for SupabaseClient that honours on_conflict like PostgREST."""
+
+    def __init__(self):
+        self.tables: dict[str, list[dict]] = {}
+        self.ids = itertools.count(1)
+
+    def insert(self, table, rows, on_conflict=None):
+        stored = self.tables.setdefault(table, [])
+        keys = on_conflict.split(",") if on_conflict else None
+        out = []
+        for row in rows:
+            existing = next((r for r in stored if keys and all(r[k] == row[k] for k in keys)), None)
+            if existing:
+                existing.update(row)
+            else:
+                existing = {"id": next(self.ids), **row}
+                stored.append(existing)
+            out.append(dict(existing))
+        return out
+
+    def update(self, table, values, **filters):
+        target = int(filters["id"].removeprefix("eq."))
+        for r in self.tables[table]:
+            if r["id"] == target:
+                r.update(values)
+        return []
+
+
+class SupabaseSinkTests(unittest.TestCase):
+    def test_writes_linked_rows(self):
+        fake = FakeSupabase()
+        sink = SupabaseSink(client=fake)
+        for price in ("10.00", "11.00"):
+            run = ScrapeRun()
+            run_id = sink.start_run(run)
+            sink.save(run_id, [make_book("u1", price=price), make_book("u2", slug="travel_2")])
+            run.status = "success"
+            sink.finish_run(run_id, run)
+
+        t = fake.tables
+        self.assertEqual(len(t["categories"]), 2)
+        self.assertEqual(len(t["books"]), 2)
+        self.assertEqual(len(t["scrape_runs"]), 2)
+        self.assertEqual(len(t["book_snapshots"]), 4)
+        cat_ids = {c["id"] for c in t["categories"]}
+        book_ids = {b["id"] for b in t["books"]}
+        run_ids = {r["id"] for r in t["scrape_runs"]}
+        self.assertTrue(all(b["category_id"] in cat_ids for b in t["books"]))
+        self.assertTrue(all(s["book_id"] in book_ids and s["run_id"] in run_ids
+                            for s in t["book_snapshots"]))
+        u1 = next(b for b in t["books"] if b["upc"] == "u1")
+        self.assertEqual(u1["price_incl_tax"], "11.00")
+        self.assertTrue(all(r["status"] == "success" for r in t["scrape_runs"]))
+
+
+if __name__ == "__main__":
+    unittest.main()
