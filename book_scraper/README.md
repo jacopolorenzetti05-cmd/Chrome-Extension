@@ -21,6 +21,8 @@ categories 1 ──< books 1 ──< book_snapshots >── 1 scrape_runs
 | `scraper/pipeline.py` | crawl → parse → validate → store, records a `scrape_runs` row |
 | `scrape.py` | CLI |
 | `scripts/supabase_smoke_test.py` | write one row, read it back, check tables |
+| `app/server.py` | Library app: read-only JSON API + serves the page |
+| `app/static/index.html` | Library app UI: title search, subject/price/rating filters, sort, book cards |
 
 ## Run it
 
@@ -50,6 +52,17 @@ Re-running is safe: categories upsert on `slug`, books on `upc`, and each run ad
 
 If you already ran an earlier `schema.sql` in Supabase, run the `drop` lines at the top of
 the file first, then the whole file again.
+
+## Browse it: the library app
+
+```bash
+python app/server.py          # then open http://localhost:8000
+```
+
+Search by title, filter by subject (category), price range and minimum rating, and sort by
+title, price, rating or copies on hand. Click a book for its catalogue card: description,
+stock, and its price/stock in each scrape run (`book_snapshots`). The tables are locked by
+RLS, so the server keeps the service_role key and the browser only sees the read-only API.
 
 ## Notes
 

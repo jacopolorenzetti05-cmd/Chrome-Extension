@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Reading Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --wall: #1f1410;
+    --wall-2: #2a1b15;
+    --wood-hi: #8a5a36;
+    --wood: #6b4226;
+    --wood-lo: #3d2414;
+    --brass: #c9a24a;
+    --brass-lo: #8c6b26;
+    --paper: #f3ead3;
+    --paper-2: #e8dcbc;
+    --ink: #2b211a;
+    --ink-soft: #6a5a4a;
+    --stamp: #a3302a;
+    --rule: #b9c7d6;
+    --green: #2f4a3a;
+    --lamp: rgba(255, 210, 120, .14);
+  }
+  * { box-sizing: border-box; }
+  html { color-scheme: dark; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font: 18px/1.45 "EB Garamond", Georgia, serif;
+    color: var(--paper);
+    background:
+      radial-gradient(ellipse 70% 45% at 50% -5%, var(--lamp), transparent 70%),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.08) 0 2px, transparent 2px 7px),
+      linear-gradient(var(--wall-2), var(--wall));
+    background-attachment: fixed;
+  }
+  button, input, select { font: inherit; color: inherit; }
+
+  /* ---------- header ---------- */
+  header {
+    text-align: center;
+    padding: 40px 16px 26px;
+    border-bottom: 3px double var(--brass-lo);
+  }
+  .ex-libris {
+    font: 15px "Special Elite", monospace;
+    letter-spacing: .35em;
+    text-transform: uppercase;
+    color: var(--brass);
+  }
+  h1 {
+    margin: 6px 0 4px;
+    font: 800 clamp(2.4rem, 7vw, 4.2rem)/1 "Playfair Display", serif;
+    color: var(--paper);
+    text-shadow: 0 2px 0 #000, 0 0 30px rgba(201,162,74,.25);
+  }
+  .tagline { margin: 0; font-style: italic; color: #cbb999; }
+  .tagline b { color: var(--brass); font-style: normal; }
+
+  /* ---------- search ---------- */
+  .search {
+    max-width: 640px;
+    margin: 22px auto 0;
+    position: relative;
+  }
+  .search input {
+    width: 100%;
+    padding: 14px 18px 14px 48px;
+    border: 1px solid var(--brass-lo);
+    border-radius: 999px;
+    background: rgba(0,0,0,.35);
+    font-size: 1.15rem;
+    outline: none;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,.5);
+  }
+  .search input:focus { border-color: var(--brass); box-shadow: inset 0 2px 8px rgba(0,0,0,.5), 0 0 0 3px rgba(201,162,74,.2); }
+  .search input::placeholder { color: #9d8b72; font-style: italic; }
+  .search svg { position: absolute; left: 18px; top: 50%; translate: 0 -50%; color: var(--brass); }
+
+  /* ---------- layout ---------- */
+  main {
+    display: grid;
+    grid-template-columns: 270px 1fr;
+    gap: 32px;
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 30px 24px 60px;
+  }
+
+  /* card-catalogue drawer */
+  .drawer {
+    align-self: start;
+    position: sticky;
+    top: 20px;
+    background: linear-gradient(160deg, var(--wood-hi), var(--wood) 40%, var(--wood-lo));
+    border-radius: 6px;
+    padding: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.15);
+  }
+  .drawer summary { list-style: none; }
+  .drawer summary::-webkit-details-marker { display: none; }
+  .drawer[open] summary { margin-bottom: 14px; }
+  .label-holder {
+    margin: 0 auto;
+    width: 70%;
+    padding: 4px 8px;
+    text-align: center;
+    background: var(--paper);
+    color: var(--ink);
+    font: 13px "Special Elite", monospace;
+    letter-spacing: .15em;
+    border: 3px solid var(--brass);
+    border-radius: 3px;
+    box-shadow: 0 2px 3px rgba(0,0,0,.5);
+  }
+  .index-card {
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 3px;
+    padding: 12px 14px 14px;
+    background-image: linear-gradient(transparent 31px, var(--stamp) 31px 32px, transparent 32px);
+    box-shadow: 0 2px 4px rgba(0,0,0,.35);
+  }
+  .index-card + .index-card { margin-top: 12px; }
+  .index-card h2 {
+    margin: 0 0 12px;
+    font: 13px/20px "Special Elite", monospace;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--stamp);
+  }
+  .field { display: block; margin-bottom: 12px; }
+  .field:last-child { margin-bottom: 0; }
+  .field > span { display: block; font-size: .85rem; color: var(--ink-soft); font-style: italic; }
+  .index-card select, .index-card input[type=number] {
+    width: 100%;
+    padding: 5px 6px;
+    background: rgba(255,255,255,.55);
+    border: 1px solid #b8a682;
+    border-radius: 3px;
+    color: var(--ink);
+    font-size: 1rem;
+  }
+  .price-row { display: flex; align-items: center; gap: 6px; }
+  .price-row span { color: var(--ink-soft); }
+  .stars-pick { display: flex; gap: 2px; }
+  .stars-pick button {
+    border: 0; background: none; padding: 0 2px; cursor: pointer;
+    font-size: 1.5rem; line-height: 1; color: #c9bb9a;
+  }
+  .stars-pick button.on { color: var(--brass-lo); }
+  .stars-pick button:hover { transform: scale(1.15); }
+  .reset {
+    width: 100%;
+    margin-top: 14px;
+    padding: 8px;
+    background: linear-gradient(var(--brass), var(--brass-lo));
+    color: #241a0c;
+    border: 0;
+    border-radius: 3px;
+    font: 14px "Special Elite", monospace;
+    letter-spacing: .12em;
+    cursor: pointer;
+    box-shadow: 0 2px 0 #4d3a14;
+  }
+  .reset:active { translate: 0 2px; box-shadow: none; }
+
+  /* ---------- results ---------- */
+  .results-head {
+    display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px;
+    margin-bottom: 18px;
+    font-style: italic; color: #cbb999;
+  }
+  .results-head strong { font: 600 1.6rem "Playfair Display", serif; font-style: normal; color: var(--paper); }
+
+  .shelves {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    column-gap: 0;
+    row-gap: 36px;
+  }
+  .book {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 12px;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    text-align: center;
+  }
+  .cover {
+    position: relative;
+    width: 108px;
+    height: 156px;
+    border-radius: 2px 4px 4px 2px;
+    overflow: hidden;
+    background: var(--green);
+    box-shadow: -4px 0 0 rgba(0,0,0,.35) inset, 4px 6px 10px rgba(0,0,0,.6);
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cover::after { /* spine crease */
+    content: ""; position: absolute; inset: 0 auto 0 6px; width: 2px;
+    background: linear-gradient(rgba(255,255,255,.25), rgba(0,0,0,.25));
+  }
+  .book:hover .cover, .book:focus-visible .cover {
+    transform: translateY(-8px) rotate(-1.5deg);
+    box-shadow: -4px 0 0 rgba(0,0,0,.35) inset, 8px 16px 20px rgba(0,0,0,.7);
+  }
+  .book:focus-visible { outline: none; }
+  .board { /* each cell's piece of the shelf; neighbours join into one plank */
+    align-self: stretch;
+    height: 14px;
+    margin: 0 -12px;
+    background: linear-gradient(var(--wood-hi), var(--wood) 45%, var(--wood-lo));
+    box-shadow: 0 8px 12px rgba(0,0,0,.55);
+  }
+  .plaque { margin-top: 10px; max-width: 140px; }
+  .plaque .t {
+    font-weight: 600; font-size: .95rem; line-height: 1.2; color: var(--paper);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .plaque .m { font-size: .9rem; color: #cbb999; }
+  .plaque .m .p { color: var(--brass); font-weight: 600; }
+  .stars { color: var(--brass); letter-spacing: 1px; }
+  .stars .off { color: #5a4636; }
+
+  .empty {
+    grid-column: 1 / -1;
+    text-align: center; padding: 60px 16px; font-style: italic; color: #cbb999;
+  }
+  .empty b { display: block; font: 600 1.5rem "Playfair Display", serif; font-style: normal; color: var(--paper); }
+
+  .pager { display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 40px; }
+  .pager button {
+    padding: 6px 16px; border: 1px solid var(--brass-lo); border-radius: 999px;
+    background: rgba(0,0,0,.3); cursor: pointer; color: var(--brass);
+    font-family: "Special Elite", monospace;
+  }
+  .pager button:disabled { opacity: .35; cursor: default; }
+  .pager span { font-style: italic; color: #cbb999; }
+
+  /* ---------- catalogue card (detail) ---------- */
+  dialog {
+    width: min(680px, calc(100vw - 32px));
+    max-height: calc(100vh - 32px);
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 30px 80px rgba(0,0,0,.8);
+  }
+  dialog::backdrop { background: rgba(10,6,4,.75); backdrop-filter: blur(2px); }
+  .card {
+    position: relative;
+    padding: 22px 26px 26px;
+    background-image: repeating-linear-gradient(transparent 0 27px, var(--rule) 27px 28px);
+    background-position: 0 62px;
+  }
+  .card::before { /* the red header rule and the hole at the bottom of every catalogue card */
+    content: ""; position: absolute; left: 0; right: 0; top: 60px; height: 2px; background: var(--stamp);
+  }
+  .card .call {
+    font: 14px "Special Elite", monospace; color: var(--ink-soft); letter-spacing: .08em;
+    height: 38px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .close {
+    border: 0; background: none; cursor: pointer; font-size: 1.6rem; line-height: 1; color: var(--ink-soft);
+  }
+  .card-body { display: grid; grid-template-columns: 140px 1fr; gap: 22px; margin-top: 18px; }
+  .card-body img { width: 140px; border-radius: 2px; box-shadow: 4px 6px 12px rgba(0,0,0,.35); }
+  .card h3 { margin: 0 0 4px; font: 600 1.6rem/1.15 "Playfair Display", serif; }
+  .card .cat { font-style: italic; color: var(--ink-soft); }
+  .card dl { display: grid; grid-template-columns: auto 1fr; gap: 0 14px; margin: 12px 0 0; font: 15px/28px "Special Elite", monospace; }
+  .card dt { color: var(--ink-soft); }
+  .card dd { margin: 0; }
+  .card .desc { margin: 16px 0 0; line-height: 28px; }
+  .stamp {
+    display: inline-block; margin: 10px 0 0 4px;
+    padding: 4px 10px;
+    border: 3px double var(--stamp);
+    color: var(--stamp);
+    font: 15px "Special Elite", monospace; letter-spacing: .15em;
+    transform: rotate(-8deg);
+    opacity: .85;
+    mix-blend-mode: multiply;
+  }
+  .history { margin-top: 20px; }
+  .history h4 { margin: 0; font: 13px/28px "Special Elite", monospace; letter-spacing: .2em; color: var(--stamp); }
+  .history table { width: 100%; border-collapse: collapse; font: 14px/28px "Special Elite", monospace; }
+  .history th { text-align: left; font-weight: normal; color: var(--ink-soft); }
+  .history td, .history th { padding: 0 8px 0 0; }
+  .card a.src {
+    display: inline-block; margin-top: 14px; color: var(--stamp);
+    font: 14px "Special Elite", monospace; letter-spacing: .08em;
+  }
+
+  .loading .shelves { opacity: .45; transition: opacity .2s; }
+
+  @media (max-width: 820px) {
+    main { grid-template-columns: 1fr; padding: 20px 16px 40px; gap: 22px; }
+    .drawer { position: static; }
+    .label-holder { cursor: pointer; }
+    .label-holder::after { content: " ▾"; }
+    .drawer[open] .label-holder::after { content: " ▴"; }
+    .shelves { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+    .cover { width: 92px; height: 134px; }
+    .card-body { grid-template-columns: 1fr; }
+    .card-body img { width: 120px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="ex-libris">Ex Libris</div>
+  <h1>The Reading Room</h1>
+  <p class="tagline">A catalogue of <b id="totalBooks">—</b> volumes across <b id="totalCats">—</b> shelves</p>
+  <div class="search">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+    <input id="q" type="search" placeholder="Search the stacks by title…" autocomplete="off" aria-label="Search by title">
+  </div>
+</header>
+
+<main>
+  <details class="drawer" id="drawer" open aria-label="Filters">
+    <summary class="label-holder">CATALOGUE</summary>
+    <div class="index-card">
+      <h2>Subject</h2>
+      <label class="field"><span>Shelf</span>
+        <select id="category"><option value="">All subjects</option></select>
+      </label>
+    </div>
+    <div class="index-card">
+      <h2>Particulars</h2>
+      <div class="field"><span>Price (£)</span>
+        <div class="price-row">
+          <input id="minPrice" type="number" min="0" step="1" placeholder="min" aria-label="Minimum price">
+          <span>–</span>
+          <input id="maxPrice" type="number" min="0" step="1" placeholder="max" aria-label="Maximum price">
+        </div>
+      </div>
+      <div class="field"><span>Rating, at least</span>
+        <div class="stars-pick" id="rating" role="radiogroup" aria-label="Minimum rating"></div>
+      </div>
+      <label class="field"><span>Order by</span>
+        <select id="sort">
+          <option value="title">Title, A–Z</option>
+          <option value="price_asc">Price, low to high</option>
+          <option value="price_desc">Price, high to low</option>
+          <option value="rating">Best rated</option>
+          <option value="stock">Most copies on hand</option>
+        </select>
+      </label>
+    </div>
+    <button class="reset" id="reset">CLEAR FILTERS</button>
+  </details>
+
+  <section id="results" aria-live="polite">
+    <div class="results-head">
+      <div><strong id="count">…</strong> <span id="countLabel"></span></div>
+      <div id="pageInfo"></div>
+    </div>
+    <div class="shelves" id="shelves"></div>
+    <nav class="pager">
+      <button id="prev">← Prev</button>
+      <span id="pageNum"></span>
+      <button id="next">Next →</button>
+    </nav>
+  </section>
+</main>
+
+<dialog id="detail"><div class="card" id="card"></div></dialog>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const state = { q: "", category: "", min_price: "", max_price: "", min_rating: "", sort: "title", page: 1 };
+let pageSize = 24, total = 0, seq = 0;
+
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const stars = (n) => `<span class="stars" aria-label="${n} of 5 stars">${"★".repeat(n)}<span class="off">${"★".repeat(5 - n)}</span></span>`;
+const money = (p) => "£" + Number(p).toFixed(2);
+
+async function api(path) {
+  const r = await fetch(path);
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.statusText);
+  return r.json();
+}
+
+function readHash() {
+  const p = new URLSearchParams(location.hash.slice(1));
+  for (const k of Object.keys(state)) if (p.has(k)) state[k] = k === "page" ? Number(p.get(k)) || 1 : p.get(k);
+}
+function writeHash() {
+  const p = new URLSearchParams();
+  for (const [k, v] of Object.entries(state)) if (v && !(k === "sort" && v === "title") && !(k === "page" && v === 1)) p.set(k, v);
+  history.replaceState(null, "", p.toString() ? "#" + p : location.pathname);
+}
+function syncInputs() {
+  $("q").value = state.q; $("category").value = state.category; $("sort").value = state.sort;
+  $("minPrice").value = state.min_price; $("maxPrice").value = state.max_price;
+  [...$("rating").children].forEach((b, i) => {
+    b.classList.toggle("on", i < Number(state.min_rating));
+    b.setAttribute("aria-checked", String(i + 1 === Number(state.min_rating)));
+  });
+}
+
+async function load() {
+  const my = ++seq;
+  writeHash();
+  $("results").classList.add("loading");
+  const params = new URLSearchParams(Object.entries(state).filter(([, v]) => v !== ""));
+  try {
+    const data = await api("/api/books?" + params);
+    if (my !== seq) return;
+    pageSize = data.page_size; total = data.total;
+    render(data.books);
+  } catch (e) {
+    if (my === seq) $("shelves").innerHTML = `<div class="empty"><b>The archive is closed.</b>${esc(e.message)}</div>`;
+  } finally {
+    if (my === seq) $("results").classList.remove("loading");
+  }
+}
+
+function render(books) {
+  const pages = Math.max(1, Math.ceil(total / pageSize));
+  $("count").textContent = total.toLocaleString();
+  $("countLabel").textContent = total === 1 ? "volume found" : "volumes found";
+  $("pageNum").textContent = `Page ${state.page} of ${pages}`;
+  $("pageInfo").textContent = total ? `showing ${(state.page - 1) * pageSize + 1}–${Math.min(state.page * pageSize, total)}` : "";
+  $("prev").disabled = state.page <= 1;
+  $("next").disabled = state.page >= pages;
+  $("shelves").innerHTML = books.length ? books.map((b) => `
+    <button class="book" data-upc="${esc(b.upc)}" title="${esc(b.title)}">
+      <div class="cover"><img src="${esc(b.image_url)}" alt="" loading="lazy"></div>
+      <div class="board"></div>
+      <div class="plaque">
+        <div class="t">${esc(b.title)}</div>
+        <div class="m"><span class="p">${money(b.price)}</span> · ${stars(b.rating)}</div>
+      </div>
+    </button>`).join("")
+    : `<div class="empty"><b>Nothing on these shelves.</b>Try a broader search or clear the filters.</div>`;
+}
+
+async function openBook(upc) {
+  const card = $("card");
+  card.innerHTML = `<div class="call">Retrieving…</div>`;
+  $("detail").showModal();
+  try {
+    const b = await api("/api/books/" + encodeURIComponent(upc));
+    card.innerHTML = `
+      <div class="call"><span>${esc(b.category_slug.replace(/_(\d+)$/, " · $1").toUpperCase())} · ${esc(b.upc)}</span>
+        <button class="close" aria-label="Close">×</button></div>
+      <div class="card-body">
+        <img src="${esc(b.image_url)}" alt="">
+        <div>
+          <h3>${esc(b.title)}</h3>
+          <div class="cat">${esc(b.category_name)}</div>
+          <dl>
+            <dt>Price</dt><dd>${money(b.price)}</dd>
+            <dt>Rating</dt><dd>${stars(b.rating)}</dd>
+            <dt>Copies</dt><dd>${b.stock}</dd>
+          </dl>
+          <div class="stamp">${b.stock} ON HAND</div>
+        </div>
+      </div>
+      ${b.description ? `<p class="desc">${esc(b.description)}</p>` : ""}
+      <div class="history"><h4>Ledger · price &amp; stock per scrape</h4>
+        <table><tr><th>Run</th><th>Date</th><th>Price</th><th>Copies</th></tr>
+        ${b.history.map((h) => `<tr><td>#${h.run_id}</td><td>${h.date ? new Date(h.date).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "—"}</td><td>${money(h.price)}</td><td>${h.stock}</td></tr>`).join("")}
+        </table></div>
+      <a class="src" href="${esc(b.url)}" target="_blank" rel="noopener">View at the source ↗</a>`;
+  } catch (e) {
+    card.innerHTML = `<div class="call"><span>Card missing: ${esc(e.message)}</span><button class="close" aria-label="Close">×</button></div>`;
+  }
+}
+
+let t;
+function set(k, v) {
+  // Take any search text still waiting on the debounce, or syncInputs would wipe it.
+  clearTimeout(t);
+  if (k !== "q") state.q = $("q").value.trim();
+  state[k] = v; state.page = 1; syncInputs(); load();
+}
+
+$("q").addEventListener("input", (e) => { clearTimeout(t); t = setTimeout(() => set("q", e.target.value.trim()), 250); });
+$("category").addEventListener("change", (e) => set("category", e.target.value));
+$("sort").addEventListener("change", (e) => set("sort", e.target.value));
+for (const [id, k] of [["minPrice", "min_price"], ["maxPrice", "max_price"]])
+  $(id).addEventListener("change", (e) => set(k, e.target.value));
+$("rating").innerHTML = [1, 2, 3, 4, 5].map((n) => `<button role="radio" data-n="${n}" aria-label="${n} star${n > 1 ? "s" : ""} and up">★</button>`).join("");
+$("rating").addEventListener("click", (e) => {
+  const n = e.target.closest("button")?.dataset.n;
+  if (n) set("min_rating", state.min_rating === n ? "" : n);
+});
+$("reset").addEventListener("click", () => {
+  $("q").value = "";
+  Object.assign(state, { q: "", category: "", min_price: "", max_price: "", min_rating: "", sort: "title" });
+  set("page", 1);
+});
+$("prev").addEventListener("click", () => { state.page--; load(); scrollTo({ top: $("results").offsetTop - 20, behavior: "smooth" }); });
+$("next").addEventListener("click", () => { state.page++; load(); scrollTo({ top: $("results").offsetTop - 20, behavior: "smooth" }); });
+$("shelves").addEventListener("click", (e) => { const b = e.target.closest(".book"); if (b) openBook(b.dataset.upc); });
+$("detail").addEventListener("click", (e) => { if (e.target.closest(".close") || e.target === $("detail")) $("detail").close(); });
+
+// The drawer folds away on phones only; on wide screens it stays open.
+const narrow = matchMedia("(max-width: 820px)");
+if (narrow.matches) $("drawer").open = false;
+$("drawer").querySelector("summary").addEventListener("click", (e) => { if (!narrow.matches) e.preventDefault(); });
+
+(async () => {
+  readHash();
+  try {
+    const cats = await api("/api/categories");
+    $("category").insertAdjacentHTML("beforeend", cats.map((c) => `<option value="${esc(c.slug)}">${esc(c.name)} (${c.count})</option>`).join(""));
+    $("totalCats").textContent = cats.length;
+    $("totalBooks").textContent = cats.reduce((s, c) => s + c.count, 0).toLocaleString();
+  } catch { /* the book list shows the error */ }
+  syncInputs();
+  load();
+})();
+</script>
+</body>
+</html>
