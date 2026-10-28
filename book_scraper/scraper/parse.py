@@ -106,6 +106,20 @@ def parse_book(html: str, book_url: str) -> Book:
 
 
 def clean_description(text: str) -> str | None:
-    """Drop the site's trailing '...more' link text."""
-    text = text.removesuffix("...more").strip()
+    """Drop the site's trailing '...more' and its cut-off preview.
+
+    Most descriptions are '<first ~300 chars, cut mid-word> <full text>'. When the
+    text before the second occurrence of the opening is a prefix of the rest, it's
+    that preview, and only the full text is kept.
+    """
+    text = re.sub(r"[﻿\xad​]", "", text)          # invisible characters
+    text = re.sub(r"[ \xa0]+", " ", text).removesuffix("...more").strip()
+    start = text.find(text[:40], 1)
+    # Compare letters and digits only: the preview sometimes drops spaces or symbols.
+    if start > 0 and _squash(text[start:]).startswith(_squash(text[:start])):
+        text = text[start:]
     return text or None
+
+
+def _squash(text: str) -> str:
+    return re.sub(r"\W+", "", text)

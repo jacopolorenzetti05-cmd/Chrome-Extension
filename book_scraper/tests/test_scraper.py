@@ -65,6 +65,16 @@ class ParseTests(unittest.TestCase):
         self.assertEqual(clean_description("No suffix"), "No suffix")
         self.assertIsNone(clean_description("...more"))
 
+    def test_clean_description_drops_cut_off_preview(self):
+        full = "A long opening sentence that goes on for a while. Then the rest of it."
+        self.assertEqual(clean_description(full[:55] + " " + full + " ...more"), full)
+        # the preview may lose a space or invisible character the full text has
+        self.assertEqual(clean_description(full[:55].replace("for a", "fora") + " " + full), full)
+        # a text that just happens to repeat a phrase later is left alone
+        text = "A long opening sentence that goes on for a while. Different. " \
+               "A long opening sentence that goes on for a while, again."
+        self.assertEqual(clean_description(text), text)
+
     def test_non_product_page_raises(self):
         with self.assertRaises(ParseError):
             parse_book(fixture("listing_page1.html"), BOOK_URL)

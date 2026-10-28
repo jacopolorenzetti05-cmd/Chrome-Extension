@@ -16,11 +16,10 @@ class SupabaseClient:
         self.base = url.rstrip("/") + "/rest/v1"
         self.timeout = timeout
         self.session = requests.Session()
-        self.session.headers.update({
-            "apikey": key,
-            "Authorization": f"Bearer {key}",
-            "Content-Type": "application/json",
-        })
+        self.session.headers.update({"apikey": key, "Content-Type": "application/json"})
+        # Legacy keys are JWTs and go in Authorization too; new sb_secret_ keys only go in apikey.
+        if key.startswith("eyJ"):
+            self.session.headers["Authorization"] = f"Bearer {key}"
 
     @classmethod
     def from_env(cls) -> "SupabaseClient":

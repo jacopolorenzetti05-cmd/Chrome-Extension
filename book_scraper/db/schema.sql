@@ -57,7 +57,16 @@ create table if not exists connection_test (
 );
 
 -- Convenience view (stores nothing): each book with its category name.
-create or replace view books_with_category as
+-- security_invoker makes the view obey the same access rules as the tables.
+create or replace view books_with_category with (security_invoker = true) as
 select b.*, c.name as category_name
 from books b
 join categories c on c.slug = b.category_slug;
+
+-- Lock the tables: the public "anon" key can't read or write them.
+-- The scraper uses the service_role key, which is not affected.
+alter table categories      enable row level security;
+alter table books           enable row level security;
+alter table scrape_runs     enable row level security;
+alter table book_snapshots  enable row level security;
+alter table connection_test enable row level security;
