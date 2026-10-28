@@ -55,14 +55,26 @@ the file first, then the whole file again.
 
 ## Browse it: the library app
 
+The app reads Supabase live on every request, so a new scrape shows up on the next page
+refresh. Anyone with repo access can run it on their own computer:
+
 ```bash
-python app/server.py          # then open http://localhost:8000
+git clone https://github.com/jacopolorenzetti05-cmd/chrome-extension
+cd chrome-extension
+git checkout claude/book-scraper-database-j58d5g
+cd book_scraper
+pip install -r requirements.txt
+cp .env.example .env     # fill in SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (ask the project owner)
+python app/server.py     # then open http://localhost:8000
 ```
+
+Run it from the `book_scraper` folder so it finds `.env`. Use `--port 8080` if 8000 is taken.
 
 Search by title, filter by subject (category), price range and minimum rating, and sort by
 title, price, rating or copies on hand. Click a book for its catalogue card: description,
 stock, and its price/stock in each scrape run (`book_snapshots`). The tables are locked by
 RLS, so the server keeps the service_role key and the browser only sees the read-only API.
+The key stays in `.env`, which git ignores: share it privately, never commit it.
 
 ## Notes
 
