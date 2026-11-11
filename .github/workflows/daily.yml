@@ -1,8 +1,10 @@
 name: Job Radar daily run
 
+# The daily run is currently driven by a Claude scheduled task (GitHub refused to start Actions jobs for
+# this account – "startup_failure"). Re-add the schedule below once Actions works for the account:
+#   schedule:
+#     - cron: "30 6 * * *"
 on:
-  schedule:
-    - cron: "30 6 * * *"     # every day 06:30 UTC
   workflow_dispatch: {}
 
 permissions:
