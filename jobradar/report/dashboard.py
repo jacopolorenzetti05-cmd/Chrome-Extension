@@ -13,23 +13,30 @@ TEMPLATE = r"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Job Radar</title>
+<meta name="claude:viewport-fit-sides" content="cover">
 <style>
-:root{--bg:#f6f7f9;--card:#fff;--ink:#16181d;--mute:#5d6470;--line:#e3e6ea;--acc:#0b5fff;--ok:#127a3a;--warn:#a15c00;--bad:#b42318;--chip:#eef1f5}
-@media (prefers-color-scheme: dark){:root{--bg:#0f1115;--card:#171a20;--ink:#e8eaee;--mute:#9aa2ae;--line:#2a2f37;--acc:#6ea0ff;--ok:#4cc27a;--warn:#e0a34a;--bad:#ff7a6e;--chip:#222730}}
+:root{--bg:#f6f7f9;--card:#fff;--ink:#16181d;--mute:#5d6470;--line:#e3e6ea;--acc:#0b5fff;--ok:#127a3a;--warn:#a15c00;--bad:#b42318;--chip:#eef1f5;
+ --new-bg:#dff5e6;--new-fg:#0b5b2a;--close-bg:#fde7d7;--close-fg:#8a3b00;--gone-bg:#ececec;--gone-fg:#5f5f5f;--on-acc:#fff;
+ --gl:max(16px, env(safe-area-inset-left, 0px));--gr:max(16px, env(safe-area-inset-right, 0px))}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0f1115;--card:#171a20;--ink:#e8eaee;--mute:#9aa2ae;--line:#2a2f37;--acc:#6ea0ff;--ok:#4cc27a;--warn:#e0a34a;--bad:#ff7a6e;--chip:#222730;
+ --new-bg:#163a24;--new-fg:#8fe0ad;--close-bg:#3d2614;--close-fg:#f5b37f;--gone-bg:#2a2a2a;--gone-fg:#b0b0b0;--on-acc:#0f1115;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1115;--card:#171a20;--ink:#e8eaee;--mute:#9aa2ae;--line:#2a2f37;--acc:#6ea0ff;--ok:#4cc27a;--warn:#e0a34a;--bad:#ff7a6e;--chip:#222730;
+ --new-bg:#163a24;--new-fg:#8fe0ad;--close-bg:#3d2614;--close-fg:#f5b37f;--gone-bg:#2a2a2a;--gone-fg:#b0b0b0;--on-acc:#0f1115;color-scheme:dark}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-header{padding:16px;max-width:1400px;margin:auto}h1{font-size:20px;margin:0 0 4px}.sub{color:var(--mute);font-size:13px}
-nav{display:flex;gap:6px;padding:0 16px;max-width:1400px;margin:auto;flex-wrap:wrap}
+header{padding-block:16px;padding-left:var(--gl);padding-right:var(--gr);max-width:1400px;margin:auto}h1{font-size:20px;margin:0 0 4px}.sub{color:var(--mute);font-size:13px}
+nav{display:flex;gap:6px;padding-left:var(--gl);padding-right:var(--gr);max-width:1400px;margin:auto;flex-wrap:wrap}
 nav button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:999px;font-weight:600;cursor:pointer}
-nav button.on{background:var(--acc);border-color:var(--acc);color:#fff}
-.bar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;max-width:1400px;margin:auto}
+nav button.on{background:var(--acc);border-color:var(--acc);color:var(--on-acc)}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;padding-block:12px;padding-left:var(--gl);padding-right:var(--gr);max-width:1400px;margin:auto}
 .bar select,.bar input{padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:14px}
-main{padding:0 16px 40px;max-width:1400px;margin:auto}
+main{padding-block:0 40px;padding-left:var(--gl);padding-right:var(--gr);max-width:1400px;margin:auto}
 .tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--card)}
 table{border-collapse:collapse;width:100%;min-width:1100px}th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 th{position:sticky;top:0;background:var(--card);font-size:12px;color:var(--mute);cursor:pointer;white-space:nowrap}
 td.sc{font-weight:700;font-size:16px;text-align:center}.s9{color:var(--ok)}.s7{color:var(--acc)}.s5{color:var(--warn)}.s1{color:var(--mute)}
 .chip{display:inline-block;padding:1px 8px;border-radius:999px;background:var(--chip);font-size:12px;white-space:nowrap}
-.New{background:#dff5e6;color:#0b5b2a}.Closing{background:#fde7d7;color:#8a3b00}.Removed{background:#eee;color:#666}
+.New{background:var(--new-bg);color:var(--new-fg)}.Closing{background:var(--close-bg);color:var(--close-fg)}.Removed,.Deadline{background:var(--gone-bg);color:var(--gone-fg)}
 .maybe{opacity:.8}.small{font-size:12px;color:var(--mute)}a{color:var(--acc)}
 .cards{display:none}
 @media (max-width:760px){.tblwrap{display:none}.cards{display:block}
@@ -46,7 +53,7 @@ td.c-pay{min-width:140px}td.c-why{min-width:260px}td.c-title{min-width:230px}td.
  <select id="fStatus"><option value="">All statuses (no removed)</option><option>New</option><option>Active</option><option>Closing soon</option><option value="Removed">Removed (history)</option></select>
  <select id="fRel"><option value="">Strong + maybe</option><option value="keep">Strong matches only</option><option value="maybe">Maybe bucket</option></select>
  <select id="fMine"><option value="">Any application status</option></select>
- <input id="fText" placeholder="Search company / role" size="22">
+ <input id="fText" placeholder="Search company / role" size="22" aria-label="Search company or role">
 </div>
 <main><div id="view"></div></main>
 <script>
@@ -117,6 +124,10 @@ def build(store: Store | None = None, out_dir=None) -> str:
             .replace("__UPDATED__", html.escape(payload["generated"][:16].replace("T", " ") + " UTC"))
             .replace("__COUNTS__", html.escape(counts)))
     (out_dir / "index.html").write_text(page, encoding="utf-8")
+    # claude.ai page version: same page without the document skeleton (the host adds its own)
+    head = page[page.index("<title>"): page.index("</head>")]
+    body = page[page.index("<body>") + len("<body>"): page.rindex("</body>")]
+    (out_dir / "artifact.html").write_text(head + "\n" + body, encoding="utf-8")
     (out_dir / "data.json").write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
     (out_dir / ".nojekyll").write_text("")
     if own:
