@@ -1,0 +1,6 @@
+# Your own application tracking. The daily run never changes this file.
+# Copy a posting id from the dashboard ("My status" column shows it) and set one of:
+#   Not applied | Applied | Interview | Offer | Rejected | Not interested
+# Example:
+#   "red-bull:744000099999999": {status: Applied, note: "applied 12 Nov via website"}
+applications: {}

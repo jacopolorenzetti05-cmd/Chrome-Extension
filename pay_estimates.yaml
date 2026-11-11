@@ -1,0 +1,19 @@
+# Pay estimates used when a posting states no salary/stipend. Shown with "(est.)".
+# Gross amounts, rough market levels for internships / graduate programmes / entry-level roles
+# in sports business and private banking. Edit freely – the next run picks up the changes.
+countries:
+  CH: {intern: "CHF 2,500–4,000 / month", graduate: "CHF 85,000–100,000 / year", entry: "CHF 75,000–90,000 / year"}
+  DE: {intern: "EUR 1,300–2,100 / month", graduate: "EUR 50,000–62,000 / year", entry: "EUR 45,000–55,000 / year"}
+  AT: {intern: "EUR 1,200–2,000 / month", graduate: "EUR 45,000–55,000 / year", entry: "EUR 42,000–50,000 / year"}
+  LU: {intern: "EUR 1,500–2,200 / month", graduate: "EUR 50,000–60,000 / year", entry: "EUR 48,000–58,000 / year"}
+  IT: {intern: "EUR 800–1,200 / month", graduate: "EUR 30,000–38,000 / year", entry: "EUR 28,000–35,000 / year"}
+  IE: {intern: "EUR 2,000–2,800 / month", graduate: "EUR 35,000–45,000 / year", entry: "EUR 33,000–42,000 / year"}
+  GB: {intern: "GBP 2,000–3,500 / month", graduate: "GBP 32,000–55,000 / year", entry: "GBP 28,000–38,000 / year"}
+  MC: {intern: "EUR 1,500–2,500 / month", graduate: "EUR 45,000–60,000 / year", entry: "EUR 40,000–55,000 / year"}
+  NL: {intern: "EUR 600–1,200 / month", graduate: "EUR 40,000–52,000 / year", entry: "EUR 38,000–48,000 / year"}
+  ES: {intern: "EUR 700–1,100 / month", graduate: "EUR 28,000–38,000 / year", entry: "EUR 25,000–33,000 / year"}
+  FR: {intern: "EUR 700–1,600 / month", graduate: "EUR 40,000–50,000 / year", entry: "EUR 36,000–45,000 / year"}
+  BE: {intern: "EUR 800–1,500 / month", graduate: "EUR 40,000–48,000 / year", entry: "EUR 36,000–44,000 / year"}
+  PT: {intern: "EUR 800–1,100 / month", graduate: "EUR 20,000–28,000 / year", entry: "EUR 18,000–24,000 / year"}
+  LI: {intern: "CHF 2,500–3,500 / month", graduate: "CHF 80,000–95,000 / year", entry: "CHF 72,000–85,000 / year"}
+  default: {intern: "EUR 800–1,500 / month", graduate: "EUR 30,000–45,000 / year", entry: "EUR 28,000–40,000 / year"}
