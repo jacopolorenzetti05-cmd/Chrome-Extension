@@ -56,7 +56,8 @@ FUNC_WEALTH = _rx([
 WEALTH_CORE = _rx([r"private bank\w*", r"private client\w*", r"wealth\w*", r"family office", r"uhnw", r"hnw\w*",
                    r"client advis\w*", r"relationship manage\w*", r"kundenberat\w*", r"anlageberat\w*",
                    r"vermogensverwaltung", r"private banker\w*", r"gestion de fortune", r"gestione patrimon\w*",
-                   r"consulente finanziari\w*", r"awm", r"asset (?:and|&)? ?wealth"])
+                   r"consulente finanziari\w*", r"awm", r"asset (?:and|&)? ?wealth", r"banquier\w* prive\w*",
+                   r"banca privata", r"privatbank\w*", r"gestion privee", r"private wealth", r"client advisor\w*"])
 
 # hard excludes (function) – checked on the title
 EXCLUDE = _rx([
@@ -175,6 +176,9 @@ def classify(title: str, location: str, description: str, sector: str, src: dict
         return v("drop", "excluded by source rule (title_exclude)")
     if UNPAID.search(d) or UNPAID.search(t):
         return v("drop", "unpaid")
+    hard = re.search(r"(?<![a-z])(engineer\w*|developer\w*|software|devops|data scien\w*)(?![a-z])", t)
+    if hard:
+        return v("drop", f"function excluded ('{hard.group(0)}')")
     excluded = EXCLUDE.search(t)
     if excluded and not RESCUE.search(t):
         return v("drop", f"function excluded ('{excluded.group(0)}')")

@@ -45,6 +45,10 @@ class Store:
         self.db.commit()
         self.db.close()
 
+    def vacuum(self):
+        self.db.commit()
+        self.db.execute("VACUUM")
+
     # ---- postings
     def get(self, pid: str) -> dict | None:
         r = self.db.execute("SELECT * FROM postings WHERE id=?", (pid,)).fetchone()

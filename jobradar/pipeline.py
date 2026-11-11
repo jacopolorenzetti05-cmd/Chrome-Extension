@@ -202,6 +202,7 @@ def run(dry_run: bool = False, do_verify: bool = True, only: list[str] | None = 
                                    "careers_url": s.get("careers_url", "")})
     if not dry_run:
         store.finish_run(run_id, now_iso(), json.dumps({"relevant": len(relevant)}))
+        store.vacuum()
     store.close()
     summary["records"] = relevant
     return summary
