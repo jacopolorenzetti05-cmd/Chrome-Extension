@@ -1,0 +1,8 @@
+requests>=2.31
+PyYAML>=6.0
+beautifulsoup4>=4.12
+lxml>=5.0
+openpyxl>=3.1
+playwright>=1.44
+pypdf>=4.0
+pytest>=8.0

@@ -1,0 +1,746 @@
+# Job Radar – sources
+# One entry per organisation. Each entry is read EVERY run from the employer's own hiring system.
+#   name, sector (sports|wealth), segment, country (ISO-2 of HQ, used when a posting has no location),
+#   adapter (see jobradar/adapters), params (adapter-specific), careers_url (official page), notes.
+# Discovery method: every careers page below was opened in a headless browser in Nov 2026 and the
+# links / network requests were inspected to find the hiring system behind it.
+
+sources:
+# ---------------------------------------------------------------- SPORTS · leagues & federations
+- name: UEFA
+  sector: sports
+  segment: Federation
+  country: CH
+  adapter: jobylon
+  careers_url: https://www.uefa.com/about/jobs/
+  params: {list_urls: ["https://www.uefa.com/about/jobs/"], company_filter: uefa}
+  notes: uefa.com lists its open roles with links to emp.jobylon.com (Jobylon). uefa.com blocks plain HTTP clients, so the list page is rendered.
+- name: UC3 (UEFA Club Competitions)
+  sector: sports
+  segment: League
+  country: CH
+  adapter: jobylon
+  careers_url: https://www.uc3.com/careers/
+  params: {list_urls: ["https://www.uc3.com/careers/"], company_filter: uc3}
+- name: FIFA
+  sector: sports
+  segment: Federation
+  country: CH
+  adapter: html
+  careers_url: https://www.fifa.com/en/careers
+  params: {list_urls: ["https://www.fifa.com/en/careers"], render: true, scroll: true, wait_ms: 8000,
+           link_pattern: "fifa\\.com/[a-z]{2}/careers/[^?#]+[0-9a-z-]{6,}|jobs\\.fifa\\.com|fifa\\.wd\\d|fifa\\.[a-z.]*smartrecruiters|successfactors.*fifa"}
+  notes: JavaScript careers page; no public ATS endpoint found. Job links are read from the rendered official page.
+- name: DFL / Bundesliga International
+  sector: sports
+  segment: League
+  country: DE
+  adapter: hibob
+  careers_url: https://www.bundesliga-gruppe.de/jobs/
+  params: {base_url: "https://dfl-group.careers.hibob.com"}
+  notes: bundesliga-gruppe.de/jobs links to the DFL Group HiBob careers site (covers DFL, Bundesliga International, DFL Digital Sports). Sportec Solutions is listed separately.
+- name: DFB
+  sector: sports
+  segment: Federation
+  country: DE
+  adapter: personio
+  careers_url: https://www.dfb.de/ueber-uns/karriere/jobboerse/
+  params: {company: dfb, tld: de, language: de}
+- name: Lega Serie A
+  sector: sports
+  segment: League
+  country: IT
+  adapter: html
+  careers_url: https://www.legaseriea.it/it/lega-serie-a/lavora-con-noi
+  params: {list_urls: ["https://www.legaseriea.it/it/lega-serie-a/lavora-con-noi"], render: true, link_pattern: "legaseriea\\.it/.*(lavora-con-noi|careers)/.+"}
+  notes: In Nov 2026 the "Lavora con noi" URL redirects to the homepage – no vacancy page is published. Kept so a re-appearing page is noticed; fallback is the official page.
+- name: FIGC
+  sector: sports
+  segment: Federation
+  country: IT
+  adapter: html
+  careers_url: https://www.figc.it/it/lavora-con-noi
+  params: {list_urls: ["https://servizi.figc.it/FigcJobs/Jobs"], render: true, link_pattern: "servizi\\.figc\\.it/FigcJobs/Jobs/(Details|Dettaglio|Job)[^#]*"}
+  notes: FIGC's own job portal (servizi.figc.it/FigcJobs). Usually 0 open positions.
+- name: LaLiga
+  sector: sports
+  segment: League
+  country: ES
+  adapter: successfactors
+  careers_url: https://www.laliga.com/trabaja-con-nosotros
+  params: {mode: classic, host: career2.successfactors.eu, company: liganacion}
+- name: Premier League
+  sector: sports
+  segment: League
+  country: GB
+  adapter: pinpoint
+  careers_url: https://www.premierleague.com/en/about/careers
+  params: {company: premierleague}
+- name: Formula 1
+  sector: sports
+  segment: League
+  country: GB
+  adapter: html
+  careers_url: https://corp.formula1.com/careers/
+  params: {list_urls: ["https://corp.formula1.com/careers/"], render: true, wait_ms: 9000, link_pattern: "formula1\\.com/.*(job|vacanc)|formula1\\.[a-z.]*(smartrecruiters|workable|greenhouse|lever)"}
+  notes: corp.formula1.com sits behind a Cloudflare bot check that blocks automated browsers. If it fails, check the official careers page by hand.
+- name: ATP Tour
+  sector: sports
+  segment: Tour
+  country: GB
+  adapter: teamtailor
+  careers_url: https://www.atptour.com/en/corporate/careers
+  params: {base_url: "https://atp.teamtailor.com"}
+  notes: atptour.com is behind Cloudflare; ATP's Teamtailor career site (atp.teamtailor.com, page title "ATP") is read directly.
+- name: WTA
+  sector: sports
+  segment: Tour
+  country: GB
+  adapter: html
+  enabled: false
+  careers_url: https://www.wtatennis.com/careers
+  params: {list_urls: ["https://www.wtatennis.com/careers"], link_pattern: "wtatennis\\.com/careers/.+"}
+  notes: DISABLED – the WTA careers page publishes no postings itself; it only links to TeamWork Online, a sports job board, which the official-only rule excludes. Fallback – check wtatennis.com/careers manually.
+- name: Premier Padel
+  sector: sports
+  segment: Tour
+  country: QA
+  adapter: html
+  careers_url: https://premierpadel.com/en/careers
+  params: {list_urls: ["https://premierpadel.com/en/careers"], render: true, link_pattern: "premierpadel\\.com/en/job/[a-z0-9_-]+",
+           title_from: link, id_pattern: "/job/([a-z0-9_-]+)"}
+  notes: Own careers pages (no ATS). Titles taken from the job links.
+- name: EuroLeague Basketball
+  sector: sports
+  segment: League
+  country: ES
+  adapter: html
+  careers_url: https://www.euroleaguebasketball.net/en/careers/
+  params: {list_urls: ["https://www.euroleaguebasketball.net/en/careers/"], render: true, wait_ms: 9000, link_pattern: "euroleaguebasketball\\.net/.*careers/.+"}
+  notes: Site is behind a Vercel security checkpoint that may block automated browsers; fallback – check the page by hand.
+- name: IOC
+  sector: sports
+  segment: Federation
+  country: CH
+  adapter: html
+  careers_url: https://www.olympics.com/ioc/careers
+  params: {list_urls: ["https://ioc.jobs.hr.cloud.sap/search/?q=&locale=en_GB"], render: true, wait_ms: 6000, scroll: true,
+           link_pattern: "ioc\\.jobs\\.hr\\.cloud\\.sap/job/[^?#]+", id_pattern: "/(\\d+)-[a-z]{2}_[A-Z]{2}/?$", follow_render: true}
+  notes: IOC uses SAP SuccessFactors (career site builder on ioc.jobs.hr.cloud.sap); JavaScript list, rendered.
+- name: Olympic Channel Services / OBS
+  sector: sports
+  segment: Federation
+  country: ES
+  adapter: teamtailor
+  careers_url: https://www.olympics.com/ioc/careers
+  params: {base_url: "https://careers.olympics.com"}
+  notes: IOC careers page links to careers.olympics.com (Teamtailor) for Olympic Channel Services / Olympic Broadcasting Services.
+- name: IRFU
+  sector: sports
+  segment: Federation
+  country: IE
+  adapter: successfactors
+  careers_url: https://www.irishrugby.ie/irfu/careers
+  params: {mode: classic, host: career55.sapsf.eu, company: irishrugby, default_location: "Dublin, Ireland"}
+- name: FAI
+  sector: sports
+  segment: Federation
+  country: IE
+  adapter: html
+  careers_url: https://www.fai.ie/about/careers/
+  params: {list_urls: ["https://www.fai.ie/about/careers/"], render: true, link_pattern: "fai\\.ie/(about/careers|careers)/.+[a-z0-9-]{8,}", default_location: "Dublin, Ireland"}
+  notes: Own careers page (no ATS); vacancies appear as article links.
+
+# ---------------------------------------------------------------- SPORTS · clubs
+- name: FC Bayern München
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: successfactors
+  careers_url: https://fcbayern.com/de/karriere
+  params: {mode: rmk, base_url: "https://careers.fcbayern.com"}
+- name: Borussia Dortmund
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: softgarden
+  careers_url: https://karriere.bvb.de/
+  params: {base_url: "https://karriere.bvb.de"}
+- name: Eintracht Frankfurt
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: html
+  careers_url: https://klub.eintracht.de/jobs/
+  params: {list_urls: ["https://jobapplication.hrworks.de/de?companyId=aq915e9c", "https://klub.eintracht.de/jobs/ag/"], render: true,
+           link_pattern: "jobapplication\\.hrworks\\.de/de/job-offer/|jobapplication\\.hrworks\\.de/.*[?&]id=|klub\\.eintracht\\.de/jobs/ag/.+", follow_render: true, default_location: "Frankfurt am Main, Germany"}
+  notes: Eintracht uses HR WORKS (jobapplication.hrworks.de) linked from klub.eintracht.de/jobs.
+- name: VfB Stuttgart
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: html
+  careers_url: https://www.vfb.de/de/1893/aktuell/jobs/jobs/
+  params: {list_urls: ["https://www.vfb.de/de/1893/aktuell/jobs/praktikum/", "https://www.vfb.de/de/1893/aktuell/jobs/jobs/", "https://www.vfb.de/de/1893/aktuell/jobs/aushilfen-und-werkstudenten/"],
+           link_pattern: "vfb\\.de/\\?proxy=redaktion/downloads/verein/(Praktikum|jobs).*\\.pdf", title_from: link, default_location: "Stuttgart, Germany"}
+  notes: VfB publishes each vacancy as a PDF on vfb.de (no ATS). Titles come from the link text, details from the PDF.
+- name: TSG Hoffenheim
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: html
+  careers_url: https://www.tsg-hoffenheim.de/karriere/
+  params: {list_urls: ["https://www.tsg-hoffenheim.de/karriere/"], render: true, wait_ms: 6000, link_pattern: "tsg-hoffenheim\\.de/.*(stellen|job|karriere)/.+|softgarden|personio|onlyfy"}
+  notes: tsg-hoffenheim.de answers 403 to automated clients. Fallback – check the page by hand.
+- name: RB Leipzig
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: html
+  careers_url: https://rbleipzig.com/de/club/karriere/
+  params: {list_urls: ["https://rbleipzig.com/de/club/karriere/stellenangebote/"], render: true, wait_ms: 7000, scroll: true,
+           link_pattern: "jobs\\.smartrecruiters\\.com/RedBull/\\d+|rbleipzig\\.com/.*/stellenangebote/.+"}
+  notes: The careers page embeds Red Bull's SmartRecruiters jobs (those are also in the Red Bull source).
+- name: Bayer 04 Leverkusen
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: html
+  careers_url: https://www.bayer04.de/de-de/page/stellenangebote
+  params: {list_urls: ["https://www.bayer04.de/de-de/page/stellenangebote"], render: true, link_pattern: "bayer04\\.softgarden\\.io/job/\\d+", id_pattern: "/job/(\\d+)"}
+  notes: Official page links to Bayer 04's softgarden (bayer04.softgarden.io); catering/event links of partners (Aramark, SPORTFIVE) are not included.
+- name: FC Red Bull Salzburg
+  sector: sports
+  segment: Club
+  country: AT
+  adapter: smartrecruiters
+  careers_url: https://www.redbullsalzburg.at/de/karriere
+  params: {company: RedBull, country: at}
+  notes: Red Bull Salzburg jobs are published on Red Bull's SmartRecruiters account; this source reads only the Austrian postings.
+- name: FC Basel 1893
+  sector: sports
+  segment: Club
+  country: CH
+  adapter: recruitee
+  careers_url: https://jobs.fcb.ch/
+  params: {base_url: "https://jobs.fcb.ch"}
+- name: Inter
+  sector: sports
+  segment: Club
+  country: IT
+  adapter: html
+  careers_url: https://www.inter.it/it/careers
+  params: {list_urls: ["https://www.inter.it/it/careers"], render: true, link_pattern: "inter\\.it/.*careers/.+|inrecruiting|intervieweb"}
+  notes: The Inter careers URL returns 404 (no public vacancy page in Nov 2026). Fallback – check inter.it by hand.
+- name: AC Milan
+  sector: sports
+  segment: Club
+  country: IT
+  adapter: html
+  careers_url: https://www.acmilan.com/en/club/careers
+  params: {list_urls: ["https://www.acmilan.com/en/club/careers/positions"], render: true, wait_ms: 6000, link_pattern: "acmilan\\.com/[a-z]{2}/club/careers/positions/.+"}
+  notes: Own careers pages (no ATS found).
+- name: Juventus
+  sector: sports
+  segment: Club
+  country: IT
+  adapter: teamtailor
+  careers_url: https://careers.juventus.com/it
+  params: {base_url: "https://careers.juventus.com"}
+- name: City Football Group
+  sector: sports
+  segment: Club
+  country: GB
+  adapter: successfactors
+  careers_url: https://www.cityfootballgroup.com/careers
+  params: {mode: rmk, base_url: "https://careers.cityfootballgroup.com"}
+- name: Real Madrid
+  sector: sports
+  segment: Club
+  country: ES
+  adapter: html
+  careers_url: https://www.realmadrid.com/es-ES/el-club/trabaja-con-nosotros
+  params: {list_urls: ["https://www.realmadrid.com/es-ES/el-club/trabaja-con-nosotros"], render: true, link_pattern: "realmadrid\\.com/.*(empleo|trabaja|oferta).+"}
+  notes: No public vacancy page found (URL returns 404). Fallback – realmadrid.com by hand.
+- name: FC Barcelona
+  sector: sports
+  segment: Club
+  country: ES
+  adapter: html
+  careers_url: https://www.fcbarcelona.com/en/club/work-with-us
+  params: {list_urls: ["https://www.fcbarcelona.com/en/club/work-with-us"], render: true, link_pattern: "fcbarcelona\\.com/.*(job|ofertas|work-with-us)/.+"}
+  notes: No public vacancy page found (URL returns 404). Fallback – fcbarcelona.com by hand.
+- name: Leinster Rugby
+  sector: sports
+  segment: Club
+  country: IE
+  adapter: html
+  careers_url: https://www.leinsterrugby.ie/careers/
+  params: {list_urls: ["https://www.leinsterrugby.ie/careers/"], render: true, link_pattern: "leinsterrugby\\.ie/.*(careers|vacanc|job).+"}
+  notes: No careers page found at leinsterrugby.ie (404). Fallback – check the site by hand.
+- name: Mercedes-AMG PETRONAS F1
+  sector: sports
+  segment: Club
+  country: GB
+  adapter: html
+  careers_url: https://www.mercedesamgf1.com/careers/vacancies
+  params: {list_urls: ["https://www.mercedesamgf1.com/careers/vacancies"], render: true, scroll: true, link_pattern: "mercedesamgf1\\.com/careers/vacancies/[A-Za-z0-9-]+$",
+           default_location: "Brackley, United Kingdom", id_pattern: "/vacancies/([A-Za-z0-9-]+)$"}
+  notes: Vacancies are published on mercedesamgf1.com (applications then go to the team's Workday).
+- name: Red Bull Racing
+  sector: sports
+  segment: Club
+  country: GB
+  adapter: oracle
+  careers_url: https://careers.redbullracing.com/
+  params: {host: iagtme.fa.ocs.oraclecloud.com, site: CX_2}
+- name: Alpine F1 Team
+  sector: sports
+  segment: Club
+  country: GB
+  adapter: html
+  careers_url: https://www.alpinecars.com/en/formula-1/careers/
+  params: {list_urls: ["https://www.alpinecars.com/en/formula-1/careers/"], render: true, link_pattern: "alpine.*(job|vacanc|career)/.+|myworkdayjobs|smartrecruiters"}
+  notes: alpinecars.com answers 403 to automated clients. Fallback – check by hand.
+
+# ---------------------------------------------------------------- SPORTS · agencies
+- name: SPORTFIVE
+  sector: sports
+  segment: Agency
+  country: DE
+  adapter: html
+  careers_url: https://jobs.sportfive.com/
+  params: {list_urls: ["https://jobs.sportfive.com/"], render: true, wait_ms: 9000, link_pattern: "jobs\\.sportfive\\.com/.+"}
+  notes: jobs.sportfive.com is behind a Cloudflare bot check that blocks automated browsers. Fallback – check by hand.
+- name: Infront Sports & Media
+  sector: sports
+  segment: Agency
+  country: CH
+  adapter: teamtailor
+  careers_url: https://infrontsportsmediaag.teamtailor.com/jobs
+  params: {company: infrontsportsmediaag}
+- name: Two Circles
+  sector: sports
+  segment: Agency
+  country: GB
+  adapter: html
+  careers_url: https://twocircles.com/gb/vacancies/
+  params: {list_urls: ["https://twocircles.com/gb/vacancies/"], link_pattern: "twocircles\\.com/gb/vacancy/[a-z0-9-]+/?$", id_pattern: "/vacancy/([a-z0-9-]+)"}
+  notes: Vacancies are published on twocircles.com (no Workable board found for 'twocircles').
+- name: IMG (incl. IMG Licensing)
+  sector: sports
+  segment: Agency
+  country: GB
+  adapter: workday
+  careers_url: https://www.img.com/careers
+  params: {host: wwecorp.wd5.myworkdayjobs.com, tenant: wwecorp, site: IMG}
+- name: WME Group
+  sector: sports
+  segment: Agency
+  country: US
+  adapter: workday
+  careers_url: https://wmegrp.com/
+  params: {host: wmeimg.wd1.myworkdayjobs.com, tenant: wmeimg, site: WMEGRP}
+- name: CAA
+  sector: sports
+  segment: Agency
+  country: US
+  adapter: workday
+  careers_url: https://www.caa.com/careers
+  params: {host: caa.wd1.myworkdayjobs.com, tenant: caa, site: Careers}
+- name: Octagon
+  sector: sports
+  segment: Agency
+  country: GB
+  adapter: html
+  careers_url: https://www.octagon.com/careers/
+  params: {list_urls: ["https://www.octagon.com/workday-jobs/"], render: true, link_pattern: "octagon\\.com/workday-job/R\\d+", id_pattern: "/(R\\d+)"}
+  notes: Octagon publishes its Workday requisitions on octagon.com/workday-job/…
+- name: Wasserman
+  sector: sports
+  segment: Agency
+  country: US
+  adapter: workday
+  careers_url: https://the.team/about/careers/
+  params: {host: teamwass.wd5.myworkdayjobs.com, tenant: teamwass, site: wassermancareers}
+- name: Relevent Sports
+  sector: sports
+  segment: Agency
+  country: US
+  adapter: html
+  careers_url: https://www.relevent.com/careers
+  params: {list_urls: ["https://www.relevent.com/careers"], render: true, link_pattern: "greenhouse\\.io/relevent|relevent\\.com/careers/.+|lever\\.co/relevent"}
+  notes: relevent.com/careers returns 404 in Nov 2026; no ATS found. Fallback – check by hand.
+- name: TEAM Marketing
+  sector: sports
+  segment: Agency
+  country: CH
+  adapter: personio
+  careers_url: https://www.team.ch/develop-your-career
+  params: {company: team-marketing-ag, tld: de}
+
+# ---------------------------------------------------------------- SPORTS · media & data
+- name: DAZN
+  sector: sports
+  segment: Media
+  country: GB
+  adapter: pinpoint
+  careers_url: https://careers.dazn.com/
+  params: {company: dazn}
+- name: Sky
+  sector: sports
+  segment: Media
+  country: GB
+  adapter: html
+  careers_url: https://careers.sky.com/jobs
+  params: {list_urls: ["https://careers.sky.com/jobs"], render: true, link_pattern: "careers\\.sky\\.com/jobs/t-R\\d+", id_pattern: "/t-(R\\d+)",
+           paginate: {param: page, start: 1, step: 1, max: 40}, max_jobs: 400}
+  notes: Sky's own careers site (careers.sky.com); list is paginated.
+- name: Warner Bros. Discovery (incl. Eurosport)
+  sector: sports
+  segment: Media
+  country: GB
+  adapter: phenom
+  careers_url: https://careers.wbd.com/global/en
+  params: {base_url: "https://careers.wbd.com", page_id: page18-ds}
+- name: Sportradar
+  sector: sports
+  segment: Data
+  country: CH
+  adapter: smartrecruiters
+  careers_url: https://sportradar.com/careers/
+  params: {company: sportradar}
+- name: Stats Perform
+  sector: sports
+  segment: Data
+  country: GB
+  adapter: teamtailor
+  careers_url: https://www.statsperform.com/careers/
+  params: {company: statsperform}
+- name: Genius Sports
+  sector: sports
+  segment: Data
+  country: GB
+  adapter: greenhouse
+  careers_url: https://www.geniussports.com/careers/
+  params: {token: geniussports}
+- name: Sportec Solutions
+  sector: sports
+  segment: Data
+  country: DE
+  adapter: personio
+  careers_url: https://sportec-solutions.com/de/careers/
+  params: {company: sportec-solutions, tld: de}
+  notes: The spec hint (Recruitee 'sportecsolutions') no longer exists; the careers page loads Personio.
+- name: RCS Sport / RCS MediaGroup
+  sector: sports
+  segment: Media
+  country: IT
+  adapter: html
+  careers_url: https://www.rcsmediagroup.it/lavora-con-noi/
+  params: {list_urls: ["https://www.rcsmediagroup.it/lavora-con-noi/"], render: true, link_pattern: "rcsmediagroup\\.it/.*(lavora-con-noi|posizioni)/.+|inrecruiting|intervieweb"}
+  notes: The "Lavora con noi" page returns 404 (Nov 2026); no ATS found. Fallback – check by hand.
+
+# ---------------------------------------------------------------- SPORTS · brands & sponsors
+- name: adidas
+  sector: sports
+  segment: Brand
+  country: DE
+  adapter: successfactors
+  careers_url: https://careers.adidas-group.com/jobs
+  params: {mode: feed, feed_url: "https://careers.adidas-group.com/jobs/feed.xml",
+           countries: [Germany, Switzerland, Austria, Luxembourg, Italy, Ireland, United Kingdom, Monaco, Netherlands, Spain, France, Belgium]}
+  notes: Full job feed published by careers.adidas-group.com (SuccessFactors RMK, postings on jobs.adidas-group.com); restricted to target countries.
+- name: PUMA
+  sector: sports
+  segment: Brand
+  country: DE
+  adapter: html
+  careers_url: https://about.puma.com/en/careers/job-openings
+  params: {list_urls: ["https://about.puma.com/en/careers/job-openings"], render: true, wait_ms: 8000, scroll: true,
+           link_pattern: "about\\.puma\\.com/[a-z]{2}/careers/job-openings/[^#?]+-\\d+|myworkdayjobs\\.com/.*puma|puma\\.wd\\d"}
+  notes: JavaScript job finder on about.puma.com.
+- name: Nike (EMEA)
+  sector: sports
+  segment: Brand
+  country: NL
+  adapter: html
+  careers_url: https://careers.nike.com/jobs
+  params: {list_urls: ["https://careers.nike.com/jobs?location=Netherlands", "https://careers.nike.com/jobs?location=Germany", "https://careers.nike.com/jobs?location=United%20Kingdom", "https://careers.nike.com/jobs?location=Italy", "https://careers.nike.com/jobs?location=Switzerland"],
+           render: true, wait_ms: 6000, link_pattern: "careers\\.nike\\.com/[^?#]+/job/R-\\d+", id_pattern: "/job/(R-\\d+)", max_jobs: 250}
+  notes: Nike's own careers site; EMEA HQ Hilversum plus key European markets.
+- name: "On"
+  sector: sports
+  segment: Brand
+  country: CH
+  adapter: greenhouse
+  careers_url: https://www.on.com/en-ch/careers
+  params: {token: onrunning}
+- name: Technogym
+  sector: sports
+  segment: Brand
+  country: IT
+  adapter: successfactors
+  careers_url: https://careers.technogym.com/
+  params: {mode: rmk, base_url: "https://careers.technogym.com"}
+- name: BasicNet (Kappa)
+  sector: sports
+  segment: Brand
+  country: IT
+  adapter: html
+  careers_url: https://www.basic.net/lavora-con-noi
+  params: {list_urls: ["https://www.basic.net/lavora-con-noi"], render: true, link_pattern: "basic\\.net/.*(lavora-con-noi|careers|posizioni)/.+|inrecruiting|intervieweb"}
+  notes: basic.net "lavora con noi" returns 404 (Nov 2026). Fallback – check by hand.
+- name: Decathlon (France HQ)
+  sector: sports
+  segment: Brand
+  country: FR
+  adapter: digitalrecruiters
+  careers_url: https://joinus.decathlon.fr/en/annonces
+  params: {domain: joinus.decathlon.fr, lang: en}
+  notes: Decathlon France career site (Cegid DigitalRecruiters). Store roles are filtered out.
+- name: Red Bull
+  sector: sports
+  segment: Sponsor brand
+  country: AT
+  adapter: smartrecruiters
+  careers_url: https://jobs.redbull.com/
+  params: {company: RedBull, detail_cap: 120}
+  notes: All Red Bull companies (incl. RB Leipzig, Red Bull Salzburg, Red Bull Media House) publish on SmartRecruiters 'RedBull'. Austrian postings also appear in the FC Red Bull Salzburg source.
+- name: HEINEKEN
+  sector: sports
+  segment: Sponsor brand
+  country: NL
+  adapter: html
+  careers_url: https://careers.theheinekencompany.com/
+  params: {list_urls: ["https://careers.theheinekencompany.com/Early-Careers", "https://careers.theheinekencompany.com/job-search?country=netherlands", "https://careers.theheinekencompany.com/job-search?country=italy", "https://careers.theheinekencompany.com/job-search?country=switzerland", "https://careers.theheinekencompany.com/job-search?country=united-kingdom", "https://careers.theheinekencompany.com/job-search?country=ireland", "https://careers.theheinekencompany.com/job-search?country=austria", "https://careers.theheinekencompany.com/job-search?country=germany"],
+           link_pattern: "careers\\.theheinekencompany\\.com/job/[a-z0-9-]+/[a-z0-9-]+/[a-z0-9-]+", id_pattern: "/job/(.+)$", max_jobs: 250}
+  notes: HEINEKEN's own careers site (SuccessFactors behind it); European operating companies.
+- name: AB InBev
+  sector: sports
+  segment: Sponsor brand
+  country: BE
+  adapter: greenhouse
+  careers_url: https://www.ab-inbev.com/careers
+  params: {token: abinbev}
+  notes: ab-inbev.com/careers job search links to AB InBev Greenhouse boards; 'abinbev' board verified live.
+- name: The Coca-Cola Company
+  sector: sports
+  segment: Sponsor brand
+  country: US
+  adapter: workday
+  careers_url: https://careers.coca-colacompany.com/
+  params: {host: coke.wd1.myworkdayjobs.com, tenant: coke, site: coca-cola-careers}
+- name: Coca-Cola HBC
+  sector: sports
+  segment: Sponsor brand
+  country: CH
+  adapter: html
+  careers_url: https://careers.coca-colahellenic.com/en_US/careers
+  params: {list_urls: ["https://careers.coca-colahellenic.com/en_US/careers/SearchJobs/?listFilterMode=1&jobRecordsPerPage=100", "https://careers.coca-colahellenic.com/en_US/careers/SearchJobs/?listFilterMode=1&jobRecordsPerPage=100&jobOffset=100", "https://careers.coca-colahellenic.com/en_US/careers/SearchJobs/?listFilterMode=1&jobRecordsPerPage=100&jobOffset=200"],
+           link_pattern: "careers\\.coca-colahellenic\\.com/en_US/careers/JobDetail/[^?#]+/\\d+", id_pattern: "/(\\d+)$", max_jobs: 300}
+  notes: Avature career site of Coca-Cola HBC.
+- name: Coca-Cola Europacific Partners
+  sector: sports
+  segment: Sponsor brand
+  country: GB
+  adapter: html
+  careers_url: https://www.ccep.jobs/en/search-jobs
+  params: {list_urls: ["https://www.ccep.jobs/en/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=500&Distance=50&ShowRadius=False&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0"],
+           link_pattern: "ccep\\.jobs/en/job/[^/]+/[^/]+/1299/\\d+", id_pattern: "/1299/(\\d+)", title_from: link, follow: false, max_jobs: 600}
+  notes: cocacolaep.com is behind Cloudflare; CCEP's official job site ccep.jobs is read instead (titles from the list, details on demand).
+- name: Mastercard
+  sector: sports
+  segment: Sponsor brand
+  country: US
+  adapter: workday
+  careers_url: https://careers.mastercard.com/us/en/
+  params: {host: mastercard.wd1.myworkdayjobs.com, tenant: mastercard, site: CorporateCareers}
+- name: Flutter (Paddy Power, Betfair)
+  sector: sports
+  segment: Betting
+  country: IE
+  adapter: html
+  careers_url: https://careers.flutterinternational.com/
+  params: {list_urls: ["https://careers.flutterinternational.com/jobs/"], render: true, link_pattern: "careers\\.flutterinternational\\.com/jobs/jr\\d+/[a-z0-9-]+/?$",
+           id_pattern: "/jobs/(jr\\d+)", paginate: {param: page, start: 1, step: 1, max: 40}, max_jobs: 400}
+  notes: Flutter International's own careers site (Paddy Power, Betfair, PokerStars, Sisal, Snai …).
+
+# ---------------------------------------------------------------- WEALTH MANAGEMENT
+- name: Goldman Sachs
+  sector: wealth
+  segment: Investment bank (wealth arm)
+  country: US
+  adapter: gs
+  careers_url: https://higher.gs.com/
+  params: {}
+  wealth_arm_only: true
+- name: UBS
+  sector: wealth
+  segment: Private bank
+  country: CH
+  adapter: brassring
+  careers_url: https://jobs.ubs.com/TGnewUI/Search/Home/Home?partnerid=25008&siteid=5012
+  params: {host: jobs.ubs.com, partner_id: 25008, site_id: 5012, detail_cap: 40}
+- name: Barclays (incl. Private Bank)
+  sector: wealth
+  segment: Investment bank (wealth arm)
+  country: GB
+  adapter: workday
+  careers_url: https://search.jobs.barclays/
+  params: {host: barclays.wd3.myworkdayjobs.com, tenant: barclays, site: External_Career_Site_Barclays}
+  wealth_arm_only: true
+  notes: search.jobs.barclays is a front-end for Barclays' Workday site, which is read directly.
+- name: J.P. Morgan (incl. Private Bank)
+  sector: wealth
+  segment: Investment bank (wealth arm)
+  country: US
+  adapter: oracle
+  careers_url: https://www.jpmorganchase.com/careers
+  params: {host: jpmc.fa.oraclecloud.com, site: CX_1001}
+  wealth_arm_only: true
+  notes: Oracle Recruiting Cloud; European locations only.
+- name: Julius Baer
+  sector: wealth
+  segment: Private bank
+  country: CH
+  adapter: workday
+  careers_url: https://www.juliusbaer.com/en/careers/
+  params: {host: juliusbaer.wd3.myworkdayjobs.com, tenant: juliusbaer, site: External}
+- name: Pictet
+  sector: wealth
+  segment: Private bank
+  country: CH
+  adapter: successfactors
+  careers_url: https://www.group.pictet/careers
+  params: {mode: classic, host: career012.successfactors.eu, company: banquepict}
+- name: Lombard Odier
+  sector: wealth
+  segment: Private bank
+  country: CH
+  adapter: workday
+  careers_url: https://www.lombardodier.com/home/careers.html
+  params: {host: lombardodier.wd3.myworkdayjobs.com, tenant: lombardodier, site: Lombard_Odier_Careers}
+- name: Vontobel
+  sector: wealth
+  segment: Private bank
+  country: CH
+  adapter: workday
+  careers_url: https://www.vontobel.com/en-ch/about-vontobel/careers/
+  params: {host: vontobel.wd3.myworkdayjobs.com, tenant: vontobel, site: Vontobel_External_Career}
+- name: EFG International
+  sector: wealth
+  segment: Private bank
+  country: CH
+  adapter: html
+  careers_url: https://www.efginternational.com/careers.html
+  params: {list_urls: ["https://www.efginternational.com/careers.html"], render: true, wait_ms: 9000, link_pattern: "efg.*(job|vacanc)|myworkdayjobs|successfactors|smartrecruiters"}
+  notes: efginternational.com is behind a Cloudflare bot check; no public ATS endpoint found. Fallback – check by hand.
+- name: LGT
+  sector: wealth
+  segment: Private bank
+  country: LI
+  adapter: html
+  careers_url: https://www.lgt.com/global-en/career/jobs
+  params: {list_urls: ["https://www.lgt.com/global-en/career/jobs"], link_pattern: "lgt\\.com/global-en/career/jobs/[a-z0-9-]+-\\d+$",
+           id_pattern: "-(\\d+)$", paginate: {param: "pageNum", start: 1, step: 1, max: 30}, max_jobs: 400}
+  notes: LGT's own careers site (paginated list).
+- name: Rothschild & Co
+  sector: wealth
+  segment: Private bank
+  country: FR
+  adapter: workday
+  careers_url: https://www.rothschildandco.com/en/careers/experienced-professionals/vacancies/
+  params: {host: rothschildandco.wd3.myworkdayjobs.com, tenant: rothschildandco, site: Rothschildandco_Lateral}
+- name: Schroders
+  sector: wealth
+  segment: Asset & wealth manager
+  country: GB
+  adapter: oracle
+  careers_url: https://www.schroders.com/en/global/individual/careers/
+  params: {host: ekbq.fa.em2.oraclecloud.com, site: CX_2}
+- name: Morgan Stanley
+  sector: wealth
+  segment: Investment bank (wealth arm)
+  country: US
+  adapter: eightfold
+  careers_url: https://www.morganstanley.com/careers/career-opportunities-search
+  params: {host: morganstanley.eightfold.ai, domain: morganstanley.com}
+  wealth_arm_only: true
+- name: Citi
+  sector: wealth
+  segment: Investment bank (wealth arm)
+  country: US
+  adapter: workday
+  careers_url: https://jobs.citi.com/
+  params: {host: citi.wd5.myworkdayjobs.com, tenant: citi, site: "2",
+           facet_filter: {Country_and_Jurisdiction: [United Kingdom, Ireland, Switzerland, Germany, Luxembourg, Italy, Austria, Monaco, Netherlands, Spain, France, Belgium, Jersey, Poland]}}
+  wealth_arm_only: true
+  notes: Workday, restricted to European countries via Workday's own country facet.
+- name: BNP Paribas (Wealth Management, BNL, BGL)
+  sector: wealth
+  segment: Private bank
+  country: FR
+  adapter: html
+  careers_url: https://group.bnpparibas/en/careers/all-job-offers
+  params: {list_urls: ["https://group.bnpparibas/en/careers/all-job-offers/wealth-management", "https://group.bnpparibas/en/careers/all-job-offers/internship", "https://group.bnpparibas/en/careers/all-job-offers/graduate-programme"],
+           link_pattern: "group\\.bnpparibas/en/careers/job-offer/[a-z0-9-]+", id_pattern: "/job-offer/([a-z0-9-]+)", max_jobs: 200}
+  wealth_arm_only: true
+  notes: BNP Paribas group career site (own platform); Wealth Management, internship and graduate listings.
+- name: Mediobanca (incl. Private Banking)
+  sector: wealth
+  segment: Private bank
+  country: IT
+  adapter: html
+  careers_url: https://www.mediobanca.com/it/lavora-con-noi.html
+  params: {list_urls: ["https://www.mediobanca.com/it/lavora-con-noi/posizioni-aperte.html"], render: true, link_pattern: "mediobanca\\.com/.*posizioni-aperte/.+|inrecruiting|intervieweb|altamira", default_location: "Milano, Italy"}
+- name: Intesa Sanpaolo (Private Banking, Fideuram)
+  sector: wealth
+  segment: Private bank
+  country: IT
+  adapter: successfactors
+  careers_url: https://group.intesasanpaolo.com/en/careers/current-vacancies
+  params: {mode: rmk, base_url: "https://jobs.intesasanpaolo.com"}
+  notes: Group job portal (SuccessFactors) – includes Intesa Sanpaolo Private Banking and Fideuram.
+- name: Fideuram
+  sector: wealth
+  segment: Private bank
+  country: IT
+  adapter: html
+  careers_url: https://www.fideuram.it/lavoraconnoi/
+  params: {list_urls: ["https://www.fideuram.it/lavoraconnoi/opportunit%C3%A0-per-giovani/lavora-con-noi"], render: true, link_pattern: "fideuram\\.it/lavoraconnoi/.+/.+/.+|jobs\\.intesasanpaolo\\.com/job/"}
+  notes: Fideuram's page covers financial-advisor recruitment; employee vacancies are in the Intesa Sanpaolo portal source.
+- name: Banca Generali
+  sector: wealth
+  segment: Private bank
+  country: IT
+  adapter: html
+  careers_url: https://www.bancagenerali.com/careers/work-with-us
+  params: {list_urls: ["https://www.bancagenerali.com/careers/work-with-us"], render: true, link_pattern: "bancagenerali\\.com/careers/.+/.+|inrecruiting|intervieweb|altamira|successfactors"}
+  notes: Own careers page; vacancies (if any) are linked from it.
+- name: Deutsche Bank (incl. Wealth Management)
+  sector: wealth
+  segment: Private bank
+  country: DE
+  adapter: beesite
+  careers_url: https://careers.db.com/
+  params: {detail_cap: 120}
+  wealth_arm_only: true
+  notes: careers.db.com search API (beesite); postings live on DB's recruiting system db.recsolu.com.
+- name: Bank of Ireland (incl. Davy)
+  sector: wealth
+  segment: Private bank
+  country: IE
+  adapter: html
+  careers_url: https://careers.bankofireland.com/
+  params: {list_urls: ["https://careers.bankofireland.com/jobs/search"], render: true, scroll: true, link_pattern: "careers\\.bankofireland\\.com/jobs/[a-z0-9-]{12,}$",
+           id_pattern: "/jobs/(.+)$", max_jobs: 300}
+  notes: Davy is part of Bank of Ireland Group; davy.ie careers points to the group careers site.
+- name: Goodbody
+  sector: wealth
+  segment: Private bank
+  country: IE
+  adapter: successfactors
+  careers_url: https://www.goodbody.ie/about-us/careers/
+  params: {mode: rmk, base_url: "https://jobs.aib.ie", search_path: "/goodbody/go/Goodbody-Jobs/9606100/"}
+  notes: Goodbody (AIB Group) jobs are published on AIB's SuccessFactors site.
