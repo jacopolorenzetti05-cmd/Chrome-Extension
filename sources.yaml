@@ -172,10 +172,9 @@ sources:
   segment: Club
   country: DE
   adapter: html
-  careers_url: https://klub.eintracht.de/jobs/
-  params: {list_urls: ["https://jobapplication.hrworks.de/de?companyId=aq915e9c", "https://klub.eintracht.de/jobs/ag/"], render: true,
-           link_pattern: "jobapplication\\.hrworks\\.de/de/job-offer/|jobapplication\\.hrworks\\.de/.*[?&]id=|klub\\.eintracht\\.de/jobs/ag/.+", follow_render: true, default_location: "Frankfurt am Main, Germany"}
-  notes: Eintracht uses HR WORKS (jobapplication.hrworks.de) linked from klub.eintracht.de/jobs.
+  careers_url: https://jobapplication.hrworks.de/de?companyId=aq915e9c
+  params: {list_urls: ["https://jobapplication.hrworks.de/de?companyId=aq915e9c"], link_pattern: "jobapplication\\.hrworks\\.de/de\\?companyId=aq915e9c&id=[0-9a-f]+$", id_pattern: "[?&]id=([0-9a-f]+)", default_location: "Frankfurt am Main, Germany"}
+  notes: Club job portal on HR WORKS (official, linked from bundesliga-gruppe.de/jobs).
 - name: VfB Stuttgart
   sector: sports
   segment: Club
@@ -190,9 +189,9 @@ sources:
   segment: Club
   country: DE
   adapter: html
-  careers_url: https://www.tsg-hoffenheim.de/karriere/
-  params: {list_urls: ["https://www.tsg-hoffenheim.de/karriere/"], render: true, wait_ms: 6000, link_pattern: "tsg-hoffenheim\\.de/.*(stellen|job|karriere)/.+|softgarden|personio|onlyfy"}
-  notes: tsg-hoffenheim.de answers 403 to automated clients. Fallback – check the page by hand.
+  careers_url: https://www.tsg-hoffenheim.de/tsg/karriere/uebersicht
+  params: {list_urls: ["https://www.tsg-hoffenheim.de/tsg/karriere/uebersicht"], render: true, wait_ms: 6000, link_pattern: "tsg-hoffenheim\\.de/.*karriere/.+/.+"}
+  notes: tsg-hoffenheim.de answers 403 to automated clients (bot protection). Fallback – check the page by hand.
 - name: RB Leipzig
   sector: sports
   segment: Club
@@ -229,18 +228,20 @@ sources:
   segment: Club
   country: IT
   adapter: html
-  careers_url: https://www.inter.it/it/posizioni-aperte
-  params: {list_urls: ["https://www.inter.it/it/posizioni-aperte"], render: true, wait_ms: 6000,
-           link_pattern: "inter\\.it/it/posizioni-aperte/.+|inrecruiting|intervieweb|lavoraconnoi|attal", default_location: "Milano, Italy"}
-  notes: Inter's "Posizioni aperte" page (indexed by search engines) returns 404 in Nov 2026 – Inter currently publishes no vacancy list. Fallback – check inter.it by hand.
+  careers_url: https://www.inter.it/it/club/posizioni-aperte
+  params: {list_urls: ["https://inter.intervieweb.it/app.php?module=iframeAnnunci&lang=it&k=937900fad5a141127fed50ff4c697ff7&d=www.inter.it&LAC=&utype=&act1=23&defgroup=name&gnavenable=1&desc=1&annType=pu"],
+           link_pattern: "intervieweb\\.it/.*(?:[Ii]d[Aa]nnuncio|annuncio|/jobs?/|act1=2[0-9]&.*id=)", default_location: "Milano, Italy",
+           rows_selector: "table tbody tr td a, table tr td a", follow_render: true}
+  notes: inter.it "Posizioni aperte" (Lavora con noi) embeds Inter's Intervieweb / Zucchetti inRecruiting job list, which is read directly. Empty in Nov 2026 – monitored daily.
 - name: AC Milan
   sector: sports
   segment: Club
   country: IT
   adapter: html
-  careers_url: https://www.acmilan.com/en/club/careers
-  params: {list_urls: ["https://www.acmilan.com/en/club/careers/positions"], render: true, wait_ms: 6000, link_pattern: "acmilan\\.com/[a-z]{2}/club/careers/positions/.+"}
-  notes: Own careers pages (no ATS found).
+  careers_url: https://www.acmilan.com/en/club/work-with-us
+  params: {list_urls: ["https://www.acmilan.com/en/club/work-with-us"], render: true, wait_ms: 6000, link_pattern: "acmilan\\.com/[a-z]{2}/club/work-with-us/.+",
+           default_location: "Milano, Italy"}
+  notes: Milan's "Work with us" page ("all the available positions inside the Club"); applications by e-mail to hrsupport@acmilan.com. No positions listed in Nov 2026 – monitored daily (page changes are tracked by snapshot).
 - name: Juventus
   sector: sports
   segment: Club
@@ -260,25 +261,28 @@ sources:
   segment: Club
   country: ES
   adapter: html
-  careers_url: https://www.realmadrid.com/es-ES/el-club/trabaja-con-nosotros
-  params: {list_urls: ["https://www.realmadrid.com/es-ES/el-club/trabaja-con-nosotros"], render: true, link_pattern: "realmadrid\\.com/.*(empleo|trabaja|oferta).+"}
-  notes: No public vacancy page found (URL returns 404). Fallback – realmadrid.com by hand.
+  enabled: false
+  careers_url: https://www.realmadrid.com/
+  params: {list_urls: ["https://www.realmadrid.com/"], link_pattern: "realmadrid\\.com/.*(empleo|trabaja)"}
+  notes: DISABLED – Real Madrid publishes no vacancy page or careers portal (checked Nov 2026; store/stadium jobs are run by partner Legends, which is covered by the Legends source). Re-enable if a page appears.
 - name: FC Barcelona
   sector: sports
   segment: Club
   country: ES
   adapter: html
-  careers_url: https://www.fcbarcelona.com/en/club/work-with-us
-  params: {list_urls: ["https://www.fcbarcelona.com/en/club/work-with-us"], render: true, link_pattern: "fcbarcelona\\.com/.*(job|ofertas|work-with-us)/.+"}
-  notes: No public vacancy page found (URL returns 404). Fallback – fcbarcelona.com by hand.
+  enabled: false
+  careers_url: https://www.fcbarcelona.com/
+  params: {list_urls: ["https://www.fcbarcelona.com/"], link_pattern: "fcbarcelona\\.com/.*recruit"}
+  notes: DISABLED – FC Barcelona has no careers portal; individual vacancies appear occasionally as news cards on fcbarcelona.com (checked Nov 2026).
 - name: Leinster Rugby
   sector: sports
   segment: Club
   country: IE
   adapter: html
-  careers_url: https://www.leinsterrugby.ie/careers/
-  params: {list_urls: ["https://www.leinsterrugby.ie/careers/"], render: true, link_pattern: "leinsterrugby\\.ie/.*(careers|vacanc|job).+"}
-  notes: No careers page found at leinsterrugby.ie (404). Fallback – check the site by hand.
+  enabled: false
+  careers_url: https://www.leinsterrugby.ie/
+  params: {list_urls: ["https://www.leinsterrugby.ie/"], link_pattern: "leinsterrugby\\.ie/.*(careers|vacanc)"}
+  notes: DISABLED – Leinster has no public careers page (404 in Nov 2026); recent Leinster roles were advertised via irishrugby.ie and the IRFU portal, which the IRFU source covers.
 - name: Mercedes-AMG PETRONAS F1
   sector: sports
   segment: Club
@@ -303,6 +307,244 @@ sources:
   careers_url: https://www.alpinecars.com/en/formula-1/careers/
   params: {list_urls: ["https://www.alpinecars.com/en/formula-1/careers/"], render: true, link_pattern: "alpine.*(job|vacanc|career)/.+|myworkdayjobs|smartrecruiters"}
   notes: alpinecars.com answers 403 to automated clients. Fallback – check by hand.
+
+- name: FC Augsburg
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: html
+  careers_url: https://jobs.fcaugsburg.de/de
+  params: {list_urls: ["https://jobs.fcaugsburg.de/de"], link_pattern: "jobs\\.fcaugsburg\\.de/de\\?id=[0-9a-f]+$", id_pattern: "[?&]id=([0-9a-f]+)", default_location: "Augsburg, Germany"}
+  notes: Club job portal on HR WORKS (official, linked from bundesliga-gruppe.de/jobs).
+- name: SC Freiburg
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: html
+  careers_url: https://jobs.scfreiburg.com/de
+  params: {list_urls: ["https://jobs.scfreiburg.com/de"], link_pattern: "jobs\\.scfreiburg\\.com/de\\?id=[0-9a-f]+$", id_pattern: "[?&]id=([0-9a-f]+)", default_location: "Freiburg, Germany"}
+  notes: Club job portal on HR WORKS (official, linked from bundesliga-gruppe.de/jobs).
+- name: Borussia Mönchengladbach
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: html
+  careers_url: https://job.borussia.de/de
+  params: {list_urls: ["https://job.borussia.de/de"], link_pattern: "job\\.borussia\\.de/de\\?id=[0-9a-f]+$", id_pattern: "[?&]id=([0-9a-f]+)", default_location: "Mönchengladbach, Germany"}
+  notes: Club job portal on HR WORKS (official, linked from bundesliga-gruppe.de/jobs).
+- name: SV Darmstadt 98
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: html
+  careers_url: https://jobs.sv98.de/de
+  params: {list_urls: ["https://jobs.sv98.de/de"], link_pattern: "jobs\\.sv98\\.de/de\\?id=[0-9a-f]+$", id_pattern: "[?&]id=([0-9a-f]+)", default_location: "Darmstadt, Germany"}
+  notes: Club job portal on HR WORKS (official, linked from bundesliga-gruppe.de/jobs).
+- name: 1. FC Nürnberg
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: html
+  careers_url: https://bewerbung.fcn.de/de
+  params: {list_urls: ["https://bewerbung.fcn.de/de"], link_pattern: "bewerbung\\.fcn\\.de/de\\?id=[0-9a-f]+$", id_pattern: "[?&]id=([0-9a-f]+)", default_location: "Nürnberg, Germany"}
+  notes: Club job portal on HR WORKS (official, linked from bundesliga-gruppe.de/jobs).
+- name: FC St. Pauli
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: html
+  careers_url: https://jobs.fcstpauli.com/de
+  params: {list_urls: ["https://jobs.fcstpauli.com/de"], link_pattern: "jobs\\.fcstpauli\\.com/de\\?id=[0-9a-f]+$", id_pattern: "[?&]id=([0-9a-f]+)", default_location: "Hamburg, Germany"}
+  notes: Club job portal on HR WORKS (official, linked from bundesliga-gruppe.de/jobs).
+- name: 1. FSV Mainz 05
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: html
+  careers_url: https://jobapplication.hrworks.de/de?companyId=ba8e529b
+  params: {list_urls: ["https://jobapplication.hrworks.de/de?companyId=ba8e529b"], link_pattern: "jobapplication\\.hrworks\\.de/de\\?companyId=ba8e529b&id=[0-9a-f]+$", id_pattern: "[?&]id=([0-9a-f]+)", default_location: "Mainz, Germany"}
+  notes: Club job portal on HR WORKS (official, linked from bundesliga-gruppe.de/jobs).
+- name: Hannover 96
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: html
+  careers_url: https://jobapplication.hrworks.de/de?companyId=aydb214a
+  params: {list_urls: ["https://jobapplication.hrworks.de/de?companyId=aydb214a"], link_pattern: "jobapplication\\.hrworks\\.de/de\\?companyId=aydb214a&id=[0-9a-f]+$", id_pattern: "[?&]id=([0-9a-f]+)", default_location: "Hannover, Germany"}
+  notes: Club job portal on HR WORKS (official, linked from bundesliga-gruppe.de/jobs).
+- name: Karlsruher SC
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: html
+  careers_url: https://jobapplication.hrworks.de/de?companyId=ap8232a3
+  params: {list_urls: ["https://jobapplication.hrworks.de/de?companyId=ap8232a3"], link_pattern: "jobapplication\\.hrworks\\.de/de\\?companyId=ap8232a3&id=[0-9a-f]+$", id_pattern: "[?&]id=([0-9a-f]+)", default_location: "Karlsruhe, Germany"}
+  notes: Club job portal on HR WORKS (official, linked from bundesliga-gruppe.de/jobs).
+- name: SV Werder Bremen
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: softgarden
+  careers_url: https://karriere.werder.de/
+  params: {base_url: "https://karriere.werder.de"}
+- name: 1. FC Köln
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: personio
+  careers_url: https://fc.de/jobs
+  params: {company: effzeh, tld: de, language: de}
+- name: Hertha BSC
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: html
+  careers_url: https://www.herthabsc.com/de/club/jobs
+  params: {list_urls: ["https://www.herthabsc.com/de/club/jobs"], render: true, wait_ms: 6000, link_pattern: "herthabsc\\.jobs\\.personio\\.(com|de)/job/\\d+", id_pattern: "/job/(\\d+)", default_location: "Berlin, Germany"}
+  notes: herthabsc.com/de/club/jobs embeds Hertha's Personio job list (the public Personio XML feed is switched off).
+- name: FC Schalke 04
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: html
+  careers_url: https://schalke04.de/verein/karriere/jobangebote/
+  params: {list_urls: ["https://schalke04.softgarden.io/en/widgets/jobs"], link_pattern: "schalke04\\.softgarden\\.io/job/\\d+", id_pattern: "/job/(\\d+)", default_location: "Gelsenkirchen, Germany"}
+  notes: Schalke's career page embeds its softgarden job widget (schalke04.softgarden.io).
+- name: VfL Wolfsburg
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: html
+  careers_url: https://www.vfl-wolfsburg.de/der-vfl/jobs
+  params: {list_urls: ["https://www.vfl-wolfsburg.de/der-vfl/jobs/direkteinstieg", "https://www.vfl-wolfsburg.de/der-vfl/jobs/praktikum"], render: true,
+           link_pattern: "vfl-wolfsburg\\.de/der-vfl/jobs/(direkteinstieg|praktikum)/[a-z0-9-]+", default_location: "Wolfsburg, Germany"}
+  notes: Own job pages on vfl-wolfsburg.de (full-time and internships).
+- name: 1. FC Union Berlin
+  sector: sports
+  segment: Club
+  country: DE
+  adapter: html
+  careers_url: https://www.fc-union-berlin.de/de/jobs/vollzeit-Q8DA
+  params: {list_urls: ["https://www.fc-union-berlin.de/de/jobs/vollzeit-Q8DA", "https://www.fc-union-berlin.de/de/jobs/praktikum-q0k3"], render: true,
+           link_pattern: "fc-union-berlin\\.de/de/(jobs|news)/.+-[A-Za-z0-9]{4}$", exclude_pattern: "/jobs/(vollzeit|teilzeit|praktikum)-", default_location: "Berlin, Germany"}
+  notes: Own job pages on fc-union-berlin.de.
+- name: Manchester United
+  sector: sports
+  segment: Club
+  country: GB
+  adapter: pinpoint
+  careers_url: https://careers.manutd.com/
+  params: {base_url: "https://careers.manutd.com"}
+  notes: careers.manutd.com is Manchester United's Pinpoint careers site.
+- name: Liverpool FC
+  sector: sports
+  segment: Club
+  country: GB
+  adapter: html
+  careers_url: https://jobsearch.liverpoolfc.com/
+  params: {list_urls: ["https://jobsearch.liverpoolfc.com/"], render: true, scroll: true, link_pattern: "jobsearch\\.liverpoolfc\\.com/jobs/job/[^/]+/\\d+", id_pattern: "/(\\d+)$", default_location: "Liverpool, United Kingdom"}
+  notes: Liverpool FC job search (Tribepad).
+- name: Arsenal
+  sector: sports
+  segment: Club
+  country: GB
+  adapter: teamtailor
+  careers_url: https://careers.arsenal.com/
+  params: {base_url: "https://careers.arsenal.com"}
+- name: Newcastle United
+  sector: sports
+  segment: Club
+  country: GB
+  adapter: html
+  careers_url: https://careers.newcastleunited.com/
+  params: {list_urls: ["https://careers.newcastleunited.com/jobs"], render: true, link_pattern: "careers\\.newcastleunited\\.com/job/[a-z0-9-]+-\\d+$", id_pattern: "-(\\d+)$", default_location: "Newcastle, United Kingdom"}
+- name: Paris Saint-Germain
+  sector: sports
+  segment: Club
+  country: FR
+  adapter: html
+  careers_url: https://www.psg.fr/en/the-club/around-the-club/careers
+  params: {list_urls: ["https://www.psg.fr/en/the-club/around-the-club/careers"], render: true, link_pattern: "psg\\.fr/.*careers/.+|myworkdayjobs|smartrecruiters\\.com/ParisSaint|teamtailor|welcomekit|jobs\\.psg", default_location: "Paris, France"}
+  notes: PSG careers page on psg.fr.
+- name: AS Roma
+  sector: sports
+  segment: Club
+  country: IT
+  adapter: html
+  careers_url: https://www.asroma.com/it/careers
+  params: {list_urls: ["https://www.asroma.com/it/careers"], render: true, link_pattern: "asroma\\.com/(it|en)/careers/.+|inrecruiting|intervieweb|teamtailor|greenhouse|lever\\.co", default_location: "Roma, Italy"}
+  notes: AS Roma careers page on asroma.com.
+- name: BSC Young Boys
+  sector: sports
+  segment: Club
+  country: CH
+  adapter: html
+  careers_url: https://www.bscyb.ch/jobs
+  params: {list_urls: ["https://www.bscyb.ch/jobs"], render: true, link_pattern: "bscyb\\.infoniqa\\.io/hcm/jobexchange/showJobOfferDetail\\.do", id_pattern: "jobOfferId=([0-9a-f]+)", default_location: "Bern, Switzerland", follow_render: true}
+  notes: Young Boys jobs (Infoniqa job exchange linked from bscyb.ch/jobs).
+- name: European Football Clubs (EFC/ECA)
+  sector: sports
+  segment: Federation
+  country: CH
+  adapter: jobylon
+  careers_url: https://www.efcfootball.com/en/careers/current-opportunities
+  params: {list_urls: ["https://www.efcfootball.com/en/careers/current-opportunities"]}
+  notes: The former ECA publishes its openings via Jobylon on efcfootball.com.
+- name: Formula E
+  sector: sports
+  segment: League
+  country: GB
+  adapter: teamtailor
+  careers_url: https://careers.fiaformulae.com/
+  params: {base_url: "https://careers.fiaformulae.com"}
+- name: SailGP
+  sector: sports
+  segment: League
+  country: GB
+  adapter: html
+  careers_url: https://sailgp.com/general/careers/
+  params: {list_urls: ["https://sailgp.bamboohr.com/careers"], render: true, link_pattern: "sailgp\\.bamboohr\\.com/careers/\\d+", id_pattern: "/careers/(\\d+)", follow_render: true}
+  notes: SailGP careers on BambooHR.
+- name: FDJ United (Kindred)
+  sector: sports
+  segment: Betting
+  country: FR
+  adapter: html
+  careers_url: https://careers.fdjunited.com/en/search-jobs
+  params: {list_urls: ["https://careers.fdjunited.com/en/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=500&Distance=50&ShowRadius=False&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0"],
+           link_pattern: "careers\\.fdjunited\\.com/en/job/[^/]+/[^/]+/3226/\\d+", id_pattern: "/3226/(\\d+)", max_jobs: 500}
+  notes: FDJ United (incl. Kindred/Unibet) career site (Radancy).
+- name: Amer Sports (workable)
+  sector: sports
+  segment: Brand
+  country: FI
+  adapter: workable
+  enabled: false
+  careers_url: https://www.amersports.com/careers/careers-in-sports/
+  params: {account: amer-sports}
+  notes: DISABLED – the Workable job API for amer-sports does not respond from automated clients (requests hang). Salomon (Amer Sports) is covered via SmartRecruiters.
+- name: Salomon
+  sector: sports
+  segment: Brand
+  country: FR
+  adapter: smartrecruiters
+  careers_url: https://www.amersports.com/careers/careers-in-sports/
+  params: {company: Salomon}
+- name: Under Armour
+  sector: sports
+  segment: Brand
+  country: NL
+  adapter: successfactors
+  careers_url: https://careers.underarmour.com/
+  params: {mode: rmk, base_url: "https://careers.underarmour.com"}
+- name: Legends (Europe)
+  sector: sports
+  segment: Agency
+  country: GB
+  adapter: teamtailor
+  careers_url: https://eujobs.legendsglobal.com/
+  params: {base_url: "https://eujobs.legendsglobal.com"}
+  notes: Legends runs hospitality, merchandise and partnerships for venues incl. Real Madrid's Bernabéu.
 
 # ---------------------------------------------------------------- SPORTS · agencies
 - name: SPORTFIVE
@@ -749,3 +991,233 @@ sources:
   careers_url: https://www.goodbody.ie/about-us/careers/
   params: {mode: rmk, base_url: "https://jobs.aib.ie", search_path: "/goodbody/go/Goodbody-Jobs/9606100/"}
   notes: Goodbody (AIB Group) jobs are published on AIB's SuccessFactors site.
+
+# ---------------------------------------------------------------- GENERAL · CEMS corporate partners & top graduate employers
+# Only internship / graduate / trainee / junior roles in business functions are kept for this sector.
+- name: Accenture
+  sector: general
+  segment: Consulting (CEMS partner)
+  country: IE
+  adapter: workday
+  careers_url: https://www.accenture.com/it-it/careers/jobsearch
+  params: {host: accenture.wd103.myworkdayjobs.com, tenant: accenture, site: AccentureCareers, search_terms: [intern, internship, graduate, trainee, praktikum, stage, tirocinio, werkstudent, junior, "entry level"], max_results: 400}
+  notes: accenture.com job search runs on Workday; only intern/graduate/junior searches are paged.
+- name: Boston Consulting Group
+  sector: general
+  segment: Consulting (CEMS partner)
+  country: US
+  adapter: phenom
+  careers_url: https://careers.bcg.com/global/en/search-results
+  params: {base_url: "https://careers.bcg.com", lang: en_global, country: global, path: global/en, page_id: page20}
+- name: Procter & Gamble
+  sector: general
+  segment: FMCG (CEMS partner)
+  country: US
+  adapter: workday
+  careers_url: https://www.pgcareers.com/
+  params: {host: pg.wd5.myworkdayjobs.com, tenant: pg, site: "1000", search_terms: [intern, internship, graduate, trainee, praktikum, stage, tirocinio, werkstudent, junior, "entry level"], max_results: 400}
+- name: Bosch
+  sector: general
+  segment: Industrial (CEMS partner)
+  country: DE
+  adapter: smartrecruiters
+  careers_url: https://jobs.bosch.com/
+  params: {company: BoschGroup, country: de}
+  notes: Bosch Germany postings on SmartRecruiters (BoschGroup); Bosch has thousands of jobs, so Germany only.
+- name: H&M Group
+  sector: general
+  segment: Retail (CEMS partner)
+  country: SE
+  adapter: smartrecruiters
+  careers_url: https://career.hm.com/
+  params: {company: HMGroup}
+- name: Barilla
+  sector: general
+  segment: FMCG (CEMS partner)
+  country: IT
+  adapter: successfactors
+  careers_url: https://www.barillagroup.com/en/careers/
+  params: {mode: rmk, base_url: "https://jobs.barillagroup.com"}
+- name: Ferrero
+  sector: general
+  segment: FMCG
+  country: LU
+  adapter: html
+  careers_url: https://www.ferrerocareers.com/int/en/jobs
+  params: {list_urls: ["https://www.ferrerocareers.com/int/en/jobs"], render: true, scroll: true, wait_ms: 6000,
+           link_pattern: "ferrerocareers\\.com/[a-z]{2,3}/[a-z]{2}/jobs/[a-z0-9-]+$", exclude_pattern: "/jobs/(search|page)", partial: true, max_jobs: 200}
+  notes: Ferrero's own careers site (SuccessFactors behind it); the list is loaded with JavaScript, first page only (partial list).
+- name: Glanbia
+  sector: general
+  segment: FMCG (CEMS partner)
+  country: IE
+  adapter: successfactors
+  careers_url: https://careers.glanbia.com/
+  params: {mode: rmk, base_url: "https://careers.glanbia.com"}
+- name: EDP
+  sector: general
+  segment: Energy (CEMS partner)
+  country: PT
+  adapter: successfactors
+  careers_url: https://jobs.edp.com/
+  params: {mode: rmk, base_url: "https://jobs.edp.com"}
+- name: Raiffeisen Bank International
+  sector: general
+  segment: Banking (CEMS partner)
+  country: AT
+  adapter: successfactors
+  careers_url: https://jobs.rbinternational.com/
+  params: {mode: rmk, base_url: "https://jobs.rbinternational.com"}
+- name: Amplifon
+  sector: general
+  segment: Healthcare (CEMS partner)
+  country: IT
+  adapter: oracle
+  careers_url: https://corporate.amplifon.com/en/careers
+  params: {host: efuf.fa.em2.oraclecloud.com, site: CX_1}
+- name: Nokia
+  sector: general
+  segment: Tech (CEMS partner)
+  country: FI
+  enabled: false
+  adapter: oracle
+  careers_url: https://www.nokia.com/careers/
+  params: {host: jobs.nokia.com, site: CX_1}
+  notes: DISABLED – its Oracle careers site on jobs.nokia.com does not expose the public Oracle job API (checked Nov 2026). Re-enable after fixing the parameters.
+- name: EF Education First
+  sector: general
+  segment: Education (CEMS partner)
+  country: CH
+  enabled: false
+  adapter: oracle
+  careers_url: https://careers.ef.com/
+  params: {host: jobs.ef.com, site: ef}
+  notes: DISABLED – its Oracle careers site on jobs.ef.com does not expose the public Oracle job API (checked Nov 2026). Re-enable after fixing the parameters.
+- name: KONE
+  sector: general
+  segment: Industrial (CEMS partner)
+  country: FI
+  adapter: workday
+  careers_url: https://www.kone.com/global/en/careers.html
+  params: {host: kone.wd3.myworkdayjobs.com, tenant: kone, site: Careers, search_terms: [intern, internship, graduate, trainee, praktikum, stage, tirocinio, werkstudent, junior, "entry level"], max_results: 400}
+- name: Visa
+  sector: general
+  segment: Payments (CEMS partner)
+  country: GB
+  adapter: workday
+  careers_url: https://corporate.visa.com/en/jobs/
+  params: {host: visa.wd5.myworkdayjobs.com, tenant: visa, site: Visa, search_terms: [intern, internship, graduate, trainee, praktikum, stage, tirocinio, werkstudent, junior, "entry level"], max_results: 400}
+- name: Salesforce
+  sector: general
+  segment: Tech (CEMS partner)
+  country: IE
+  adapter: workday
+  careers_url: https://careers.salesforce.com/en/jobs/
+  params: {host: salesforce.wd12.myworkdayjobs.com, tenant: salesforce, site: External_Career_Site, search_terms: [intern, internship, graduate, trainee, praktikum, stage, tirocinio, werkstudent, junior, "entry level"], max_results: 400}
+- name: Airbus
+  sector: general
+  segment: Industrial (CEMS partner)
+  country: FR
+  adapter: workday
+  careers_url: https://www.airbus.com/en/careers/search-and-apply
+  params: {host: ag.wd3.myworkdayjobs.com, tenant: ag, site: Airbus, search_terms: [intern, internship, graduate, trainee, praktikum, stage, tirocinio, werkstudent, junior, "entry level"], max_results: 400}
+- name: Equinor
+  sector: general
+  segment: Energy (CEMS partner)
+  country: NO
+  adapter: workday
+  careers_url: https://www.equinor.com/careers
+  params: {host: equinor.wd3.myworkdayjobs.com, tenant: equinor, site: EQNR, search_terms: [intern, internship, graduate, trainee, praktikum, stage, tirocinio, werkstudent, junior, "entry level"], max_results: 400}
+- name: Electrolux Group
+  sector: general
+  segment: Consumer goods (CEMS partner)
+  country: SE
+  enabled: false
+  adapter: phenom
+  careers_url: https://career.electroluxgroup.com/global/en
+  params: {base_url: "https://career.electroluxgroup.com", lang: en_global, country: global, path: global/en}
+  notes: DISABLED – career.electroluxgroup.com refuses connections from the run environment (checked Nov 2026). Re-enable after fixing the parameters.
+- name: Philips
+  sector: general
+  segment: Health tech
+  country: NL
+  enabled: false
+  adapter: phenom
+  careers_url: https://www.careers.philips.com/emea/en
+  params: {base_url: "https://www.careers.philips.com", lang: en_gb, country: emea, path: emea/en}
+  notes: DISABLED – its Phenom site did not return jobs for the European site settings (checked Nov 2026). Re-enable after fixing the parameters.
+- name: Microsoft
+  sector: general
+  segment: Tech
+  country: IE
+  adapter: eightfold
+  careers_url: https://jobs.careers.microsoft.com/global/en/search
+  params: {host: apply.careers.microsoft.com, domain: microsoft.com}
+- name: Kering
+  sector: general
+  segment: Luxury
+  country: FR
+  adapter: eightfold
+  careers_url: https://careers.kering.com/careers
+  params: {host: careers.kering.com, domain: kering.com}
+- name: McKinsey & Company
+  sector: general
+  segment: Consulting (CEMS partner)
+  country: US
+  adapter: html
+  careers_url: https://www.mckinsey.com/careers/search-jobs
+  params: {list_urls: ["https://www.mckinsey.com/careers/search-jobs?query=intern", "https://www.mckinsey.com/careers/search-jobs?query=business%20analyst", "https://www.mckinsey.com/careers/search-jobs?query=associate"],
+           render: true, wait_ms: 7000, scroll: true, link_pattern: "mckinsey\\.com/careers/search-jobs/jobs/[a-z0-9-]+-\\d+$", id_pattern: "-(\\d+)$", partial: true, max_jobs: 200}
+  notes: McKinsey's own job search (JavaScript); searches for intern / business analyst / associate. Partial list – removal is decided by the posting's own page.
+- name: Kearney
+  sector: general
+  segment: Consulting (CEMS partner)
+  country: US
+  adapter: html
+  careers_url: https://www.kearney.com/careers/opportunities
+  params: {list_urls: ["https://kearney.recsolu.com/job_boards/1"], render: true, link_pattern: "kearney\\.recsolu\\.com/jobs/[A-Za-z0-9_-]{10,}", id_pattern: "/jobs/([A-Za-z0-9_-]+)", follow_render: true}
+  notes: Kearney job board on its recruiting system (recsolu), linked from kearney.com/careers.
+- name: Roland Berger
+  sector: general
+  segment: Consulting
+  country: DE
+  adapter: html
+  careers_url: https://www.rolandberger.com/en/Join/All-Jobs/
+  params: {list_urls: ["https://www.rolandberger.com/en/Join/All-Jobs/"], render: true, scroll: true, wait_ms: 6000,
+           link_pattern: "rolandberger\\.com/en/Join/(All-Jobs|Job)/.+|smartrecruiters\\.com/RolandBerger|jobs\\.smartrecruiters\\.com/RolandBerger"}
+- name: LVMH
+  sector: general
+  segment: Luxury (CEMS partner)
+  country: FR
+  adapter: html
+  careers_url: https://www.lvmh.com/join-us/our-job-offers
+  params: {list_urls: ["https://www.lvmh.com/join-us/our-job-offers?query=intern", "https://www.lvmh.com/join-us/our-job-offers?query=graduate", "https://www.lvmh.com/join-us/our-job-offers?query=stage"],
+           render: true, wait_ms: 7000, link_pattern: "lvmh\\.com/(en/)?join-us/our-job-offers/\\d+", id_pattern: "/(\\d+)$", partial: true, max_jobs: 150}
+  notes: LVMH group job search (JavaScript); internship/graduate searches, first result page only (partial list).
+- name: Merlin Entertainments
+  sector: general
+  segment: Leisure (CEMS partner)
+  country: GB
+  enabled: false
+  adapter: html
+  careers_url: https://www.merlincareers.com/en/jobs
+  params: {list_urls: ["https://www.merlincareers.com/en/jobs"], render: true, scroll: true, link_pattern: "merlincareers\\.com/en/jobs?/[a-z0-9-]+", partial: true}
+  notes: DISABLED – almost all openings are park/attraction operations roles on regional iCIMS sites (checked Nov 2026). Re-enable after fixing the parameters.
+- name: Unilever
+  sector: general
+  segment: FMCG
+  country: GB
+  adapter: html
+  careers_url: https://careers.unilever.com/en/search-jobs
+  params: {list_urls: ["https://careers.unilever.com/en/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=1000&Distance=50&ShowRadius=False&Keywords=intern&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0", "https://careers.unilever.com/en/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=1000&Distance=50&ShowRadius=False&Keywords=graduate&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0", "https://careers.unilever.com/en/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=1000&Distance=50&ShowRadius=False&Keywords=trainee&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0"],
+           link_pattern: "careers\\.unilever\\.com/en/job/[^/]+/[^/]+/34155/\\d+", id_pattern: "/34155/(\\d+)", title_from: link, location_from_url: "/en/job/([^/]+)/", follow: false, max_jobs: 800}
+  notes: Unilever careers site (Radancy); intern / graduate / trainee searches.
+- name: L'Oréal
+  sector: general
+  segment: FMCG (CEMS partner)
+  country: FR
+  adapter: html
+  careers_url: https://careers.loreal.com/en/search-jobs
+  params: {list_urls: ["https://careers.loreal.com/en/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=1000&Distance=50&ShowRadius=False&Keywords=intern&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0", "https://careers.loreal.com/en/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=1000&Distance=50&ShowRadius=False&Keywords=graduate&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0", "https://careers.loreal.com/en/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=1000&Distance=50&ShowRadius=False&Keywords=trainee&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0"],
+           link_pattern: "careers\\.loreal\\.com/en/job/[^/]+/[^/]+/3456/\\d+", id_pattern: "/3456/(\\d+)", title_from: link, location_from_url: "/en/job/([^/]+)/", follow: false, max_jobs: 800}
+  notes: L'Oréal careers site (Radancy); intern / graduate / trainee searches.

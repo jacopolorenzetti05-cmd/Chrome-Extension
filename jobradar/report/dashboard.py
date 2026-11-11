@@ -47,7 +47,7 @@ td.sc{font-weight:700;font-size:16px;text-align:center}.s9{color:var(--ok)}.s7{c
 td.c-pay{min-width:140px}td.c-why{min-width:260px}td.c-title{min-width:230px}td.c-url{min-width:150px}
 </style></head><body>
 <header><h1>Job Radar</h1><div class="sub">Official postings only · read directly from employers' hiring systems · updated __UPDATED__ · __COUNTS__</div></header>
-<nav><button data-tab="sports" class="on">Sports</button><button data-tab="wealth">Wealth Management</button><button data-tab="health">Source health</button></nav>
+<nav><button data-tab="sports" class="on">Sports</button><button data-tab="wealth">Wealth Management</button><button data-tab="general">General</button><button data-tab="health">Source health</button></nav>
 <div class="bar" id="filters">
  <select id="fCountry"><option value="">All countries</option></select>
  <select id="fStatus"><option value="">All statuses (no removed)</option><option>New</option><option>Active</option><option>Closing soon</option><option value="Removed">Removed (history)</option></select>
@@ -69,7 +69,8 @@ function save(){try{const o={tab};["fCountry","fStatus","fRel","fMine","fText"].
 function scClass(s){return s>=9?"s9":s>=7?"s7":s>=5?"s5":"s1"}
 function rows(){const c=$("#fCountry").value,st=$("#fStatus").value,rel=$("#fRel").value,mine=$("#fMine").value,q=$("#fText").value.toLowerCase();
  return DATA.postings.filter(p=>p.sector===tab && (st? p.display_status===st : p.display_status!=="Removed") && (!c||p.country===c) && (!rel||p.relevance===rel) && (!mine||p.my_status===mine) && (!q||(p.company+" "+p.title+" "+p.location).toLowerCase().includes(q)))
- .sort((a,b)=>{let x=a[sortKey]??"",y=b[sortKey]??"";if(typeof x==="number"||typeof y==="number"){x=+x||0;y=+y||0}return (x>y?1:x<y?-1:0)*sortDir||((b.score||0)-(a.score||0))})}
+ .sort((a,b)=>{if(sortKey==="score"){const na=a.display_status==="New"?1:0,nb=b.display_status==="New"?1:0;if(na!==nb)return nb-na}
+  let x=a[sortKey]??"",y=b[sortKey]??"";if(typeof x==="number"||typeof y==="number"){x=+x||0;y=+y||0}return (x>y?1:x<y?-1:0)*sortDir||((b.score||0)-(a.score||0))})}
 function cell(p,k){switch(k){
  case "score":return `<td class="sc ${scClass(p.score)}">${p.score??""}</td>`;
  case "title":return `<td class="c-title"><b>${esc(p.title)}</b>${p.relevance==="maybe"?' <span class="chip">maybe</span>':""}${p.level==="working_student"?' <span class="chip">Werkstudent</span>':""}<div class="small">${esc(p.reason)}</div></td>`;
@@ -86,7 +87,8 @@ function renderJobs(){const r=rows();
   <div class="small">${esc(p.type)} ${esc(p.timing)} · ${esc(p.pay)} · ${esc(p.languages)}</div>
   <div class="small">${esc(p.why)}</div><div style="margin-top:6px"><span class="chip ${p.display_status.split(" ")[0]}">${esc(p.display_status)}</span> ${p.deadline?`<span class="chip">Deadline ${esc(p.deadline)}</span>`:""} <span class="chip">${esc(p.my_status)}</span> <a href="${esc(p.url)}" target="_blank" rel="noopener">Official posting ↗</a></div>
   <div class="small">First seen ${esc(p.first_seen)} · last seen ${esc(p.last_seen)}</div></div>`).join("");
- $("#view").innerHTML=`<div class="small" style="margin-bottom:6px">${r.length} postings</div><div class="tblwrap"><table><thead><tr>${th}</tr></thead><tbody>${tb}</tbody></table></div><div class="cards">${cards}</div>`;
+ const nNew=r.filter(p=>p.display_status==="New").length;
+ $("#view").innerHTML=`<div class="small" style="margin-bottom:6px">${r.length} postings${nNew?` · ${nNew} new today, shown first`:""}${tab==="general"?" · CEMS corporate partners and other top graduate employers":""}</div><div class="tblwrap"><table><thead><tr>${th}</tr></thead><tbody>${tb}</tbody></table></div><div class="cards">${cards}</div>`;
  document.querySelectorAll("th[data-k]").forEach(h=>h.onclick=()=>{const k=h.dataset.k;sortDir=(k===sortKey)?-sortDir:(k==="score"?-1:1);sortKey=k;renderJobs()})}
 function renderHealth(){const h=DATA.health;
  const cls=s=>s.startsWith("OK")?"okc":s.startsWith("ERROR")||s.startsWith("ZERO")?"badc":"warnc";
@@ -118,6 +120,7 @@ def build(store: Store | None = None, out_dir=None) -> str:
     active = [p for p in shown if p["display_status"] != "Removed"]
     counts = (f"{sum(1 for p in active if p['sector']=='sports')} sports · "
               f"{sum(1 for p in active if p['sector']=='wealth')} wealth · "
+              f"{sum(1 for p in active if p['sector']=='general')} general · "
               f"{sum(1 for h in health if h['health'].startswith('OK'))}/{len(health)} sources OK"
               + (f" · {unverified} hidden (URL check failed)" if unverified else ""))
     page = (TEMPLATE.replace("__DATA__", json.dumps(payload, ensure_ascii=False).replace("</", "<\\/"))

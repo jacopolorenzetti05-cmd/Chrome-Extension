@@ -81,7 +81,12 @@ def list_links(src) -> list[tuple[str, str]]:
                     for v in o:
                         yield from strings(v)
             body = " ".join(strings(_json.loads(body)))
-        return harvest(r.url, html=body)
+        found = harvest(r.url, html=body)
+        if not found and p.get("rows_selector"):
+            # rows exist but no job link matched: the page layout changed – report it instead of "0 jobs"
+            if BeautifulSoup(body, "lxml").select(p["rows_selector"]):
+                raise RuntimeError(f"list rows present on {u} but no job links matched (layout changed?)")
+        return found
 
     if pg:
         for base in urls:
@@ -145,6 +150,9 @@ def fetch(src):
     links = links[: p.get("max_jobs", 150)]
     idpat = re.compile(p["id_pattern"]) if p.get("id_pattern") else None
 
+    import time as _time
+    deadline = _time.time() + p.get("time_budget", 300)
+
     def build(item):
         href, text = item
         m = idpat.search(href) if idpat else None
@@ -156,7 +164,7 @@ def fetch(src):
                 loc = mm.group(1).replace("-", " ").title()
         post = Posting(id=f"{src['key']}:{jid}", company=src["name"], title=text, location=loc,
                        url=href, source_adapter="html", source_key=src["key"])
-        if p.get("follow", True):
+        if p.get("follow", True) and _time.time() < deadline:
             try:
                 _fill(src, post, text)
             except Exception as e:  # keep the link-level info, mark the problem

@@ -117,7 +117,7 @@ class Browser:
         except Exception:
             pass
 
-    def call(self, fn, *args, timeout=180):
+    def call(self, fn, *args, timeout=120):
         box, ev = {}, threading.Event()
         self._q.put((fn, args, box, ev))
         if not ev.wait(timeout):
@@ -132,7 +132,7 @@ class Browser:
         def _do(ctx, url, wait_ms, wait_selector, scroll):
             page = ctx.new_page()
             try:
-                resp = page.goto(url, timeout=60000, wait_until="domcontentloaded")
+                resp = page.goto(url, timeout=45000, wait_until="domcontentloaded")
                 if wait_selector:
                     try:
                         page.wait_for_selector(wait_selector, timeout=20000)

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import threading
 import time
 import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -12,7 +13,8 @@ from .http import Browser
 from .models import Posting, clean_ws
 from .store import Store
 
-DETAIL_CAP = 80          # max detail calls per source per run (only for postings that pass the title filter)
+DETAIL_CAP = 80
+SOURCE_TIMEOUT = 600     # seconds; a source that hangs longer is reported as an error instead of stalling the run          # max detail calls per source per run (only for postings that pass the title filter)
 MISSES_TO_REMOVE = 2
 
 
@@ -24,7 +26,21 @@ def fetch_source(src: dict) -> tuple[list[Posting], str | None, float]:
     t0 = time.time()
     try:
         mod = adapters.get(src["adapter"])
-        posts = mod.fetch(src)
+        box: dict = {}
+
+        def _run():
+            try:
+                box["posts"] = mod.fetch(src)
+            except Exception as e:  # noqa: BLE001
+                box["error"] = e
+        th = threading.Thread(target=_run, daemon=True)
+        th.start()
+        th.join(src.get("params", {}).get("timeout_s", SOURCE_TIMEOUT))
+        if th.is_alive():
+            raise TimeoutError(f"source did not answer within {src.get('params', {}).get('timeout_s', SOURCE_TIMEOUT)}s")
+        if "error" in box:
+            raise box["error"]
+        posts = box["posts"]
         clean = []
         for p in posts:
             p.title = clean_ws(__import__("html").unescape(p.title or ""))

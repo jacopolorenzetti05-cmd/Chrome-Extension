@@ -41,7 +41,9 @@ def test_manager_with_experience_is_dropped_but_without_is_maybe():
 
 
 def test_maybe_bucket_for_borderline():
-    assert rel("Intern Finance", "Zurich") in ("maybe", "drop")
+    # management-type internships count in sports, not in wealth (there only client-facing roles count)
+    assert rel("Intern Finance", "Zurich") == "keep"
+    assert rel("Intern Finance", "Zurich", sector="wealth") == "drop"
     assert rel("Partnerships Executive", "London, UK") == "maybe"
 
 
@@ -63,3 +65,12 @@ def test_unknown_location_uses_hq_for_europe_check_only():
     assert v.relevance == "keep" and v.region == "europe" and v.country == ""
     v = classify("Sponsorship Intern", "", "", "sports", {"country": "US"})
     assert v.relevance == "maybe"
+
+
+def test_general_sector_graduate_roles_only():
+    assert rel("Summer Intern - Strategy", sector="general") == "keep"
+    assert rel("Management Trainee Program", sector="general") == "keep"
+    assert rel("Business Analyst", sector="general") == "maybe"
+    assert rel("Brand Manager", sector="general") == "drop"
+    assert rel("Intern Software Engineering", sector="general") == "drop"
+    assert rel("HR Intern", sector="general") == "drop"

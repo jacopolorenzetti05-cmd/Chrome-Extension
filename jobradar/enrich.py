@@ -232,6 +232,12 @@ TYPE_LABEL = {"intern": "Internship", "working_student": "Working student", "gra
 # ---------------------------------------------------------------- scoring
 STRONG_FUNCS_SPORTS = re.compile(r"partnership|sponsor|commercial|business development|key account|licens|"
                                  r"hospitality|media rights|sales|vertrieb|vermarktung|partner")
+STRONG_FUNCS_GENERAL = re.compile(r"consult|strateg|management trainee|graduate (?:program|scheme)|leadership program|"
+                                  r"business development|commercial|sales|key account|brand|marketing|corporate development|"
+                                  r"general management|rotational|business analyst")
+MGMT_FUNCS = re.compile(r"project|projekt|finance|financial|controll|operations|event|communication|kommunikation|"
+                        r"media|crm|ticketing|analyst|insight|pricing|supply chain|procurement|transformation|"
+                        r"sustainability|management|business")
 STRONG_FUNCS_WEALTH = re.compile(r"private bank|wealth|client advis|relationship manag|kundenberat|private client|"
                                  r"advisory|family office|hnw")
 
@@ -241,10 +247,15 @@ def rule_score(rec: dict) -> tuple[int, str]:
     s = 4.5
     why = []
     sector = rec["sector"]
-    strong = (STRONG_FUNCS_WEALTH if sector == "wealth" else STRONG_FUNCS_SPORTS).search(t)
+    rx = {"wealth": STRONG_FUNCS_WEALTH, "general": STRONG_FUNCS_GENERAL}.get(sector, STRONG_FUNCS_SPORTS)
+    strong = rx.search(t)
+    mg = MGMT_FUNCS.search(t) if sector != "wealth" else None
     if strong:
         s += 2
         why.append(f"{strong.group(0)} role")
+    elif mg:
+        s += 1
+        why.append(f"{mg.group(0)} role (management track)")
     elif re.search(r"marketing|brand|client|events|ticketing|strategy", t):
         s += 1
         why.append("commercial-adjacent role")

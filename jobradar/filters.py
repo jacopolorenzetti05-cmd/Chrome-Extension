@@ -39,7 +39,7 @@ FUNC_SPORTS = _rx([
     r"sponsoring", r"sponsor", r"sponsors", r"commercial\w*", r"commerciale", r"commerciali", r"comercial\w*",
     r"sales", r"vertrieb\w*", r"vermarktung", r"vendite", r"ventas", r"ventes", r"business development",
     r"geschaftsentwicklung", r"key account\w*", r"account manage\w*", r"account executive", r"licens\w*", r"licen[cs]ing",
-    r"merchandising", r"hospitality", r"brand\w*", r"marketing", r"media rights", r"rights", r"broadcaster",
+    r"merchandising", r"hospitality", r"brand(?!schutz)\w*", r"marketing", r"media rights", r"rights", r"broadcaster",
     r"client\w*", r"relationship\w*", r"advisory", r"revenue", r"growth", r"fan engagement", r"ticketing",
     r"crm", r"partenariat\w*", r"patrocinio\w*", r"sponsorizzazion\w*", r"kooperation\w*", r"events?",
     r"activation", r"go to market", r"customer success", r"business partner", r"betting account", r"trading partner",
@@ -58,6 +58,29 @@ WEALTH_CORE = _rx([r"private bank\w*", r"private client\w*", r"wealth\w*", r"fam
                    r"vermogensverwaltung", r"private banker\w*", r"gestion de fortune", r"gestione patrimon\w*",
                    r"consulente finanziari\w*", r"awm", r"asset (?:and|&)? ?wealth", r"banquier\w* prive\w*",
                    r"banca privata", r"privatbank\w*", r"gestion privee", r"private wealth", r"client advisor\w*"])
+
+# management-type functions that fit a business/management background (used for sports + general)
+FUNC_MGMT = _rx([
+    r"strateg\w*", r"business (?:analyst|development|operations|management|partner|planning)", r"consult\w*",
+    r"project\w*", r"projekt\w*", r"progett\w*", r"proyect\w*", r"programme", r"program", r"operations?",
+    r"operativ\w*", r"finance", r"financial", r"finanz\w*", r"controll\w*", r"fp a", r"m a", r"corporate development",
+    r"transformation", r"management trainee", r"general management", r"management", r"geschaftsfuhrung",
+    r"unternehmensentwicklung", r"event\w*", r"veranstaltung\w*", r"communication\w*", r"kommunikation",
+    r"comunicazion\w*", r"pr", r"public relations", r"media", r"marketing", r"brand(?!schutz)\w*", r"product (?:management|manager|marketing)",
+    r"category management", r"procurement", r"purchasing", r"einkauf", r"supply chain", r"sustainability",
+    r"nachhaltigkeit", r"esg", r"analyst", r"analytics", r"insights?", r"pricing", r"revenue management",
+    r"customer experience", r"crm", r"ticketing", r"hospitality", r"internationali[sz]ation", r"international",
+    r"office of the ceo", r"chief of staff", r"ceo office", r"investor relations", r"audit", r"business"])
+# EXCLUDE words that are fine for management-minded entry roles in sports / general
+SOFT_EXCLUDE = _rx([r"finance", r"financial", r"finanz\w*", r"controller\w*", r"controlling", r"audit\w*", r"operations?",
+                    r"ops", r"procurement", r"procure\w*", r"einkauf", r"achats", r"acquisti", r"compras", r"supply",
+                    r"supply chain", r"project manager", r"pmo", r"planning", r"planner", r"data analyst",
+                    r"business intelligence", r"bi", r"analytics", r"content", r"social media", r"sustainability",
+                    r"nachhaltigkeit", r"esg", r"logisti\w*", r"accounting", r"comptab\w*", r"contabil\w*", r"tax",
+                    r"risk", r"treasury", r"product manager", r"product owner", r"research", r"investigat\w*",
+                    r"administration", r"administrativ\w*", r"amministrazion\w*", r"verwaltung", r"m a",
+                    r"corporate finance", r"performance marketing", r"seo", r"sem", r"tech", r"technolog\w*",
+                    r"media operations", r"video\w*", r"editor", r"producer", r"design", r"designer\w*"])
 
 # hard excludes (function) – checked on the title
 EXCLUDE = _rx([
@@ -105,7 +128,9 @@ EXCLUDE = _rx([
     r"amelioration continue", r"continuous improvement", r"production", r"produktion", r"quality", r"qualite",
     r"qualita", r"supply", r"maintenance", r"manufactur\w*", r"r d", r"laborator\w*", r"finance", r"financial",
     r"finanz\w*", r"comptab\w*", r"contabil\w*", r"auditor\w*", r"tresorerie", r"payroll", r"procure\w*",
-    r"achats", r"acquisti", r"compras", r"approvisionn\w*", r"cogs"])
+    r"achats", r"acquisti", r"compras", r"approvisionn\w*", r"cogs", r"brandschutz", r"gefahren\w*", r"qualitat\w*",
+    r"konstruktion\w*", r"technisch\w*", r"elektro\w*", r"mechatron\w*", r"fertigung\w*", r"montage", r"werkstoff\w*",
+    r"simulation\w*", r"hardware", r"chemi\w*", r"lab", r"labor"])
 # functions that are fine to keep despite an EXCLUDE word (e.g. "Sales Operations" is still excluded, but
 # "Commercial Partnerships – Media Rights" is not touched). Title words that rescue an excluded match:
 RESCUE = _rx([r"partnerships?", r"sponsorship\w*", r"sponsoring", r"commercial", r"business development",
@@ -179,10 +204,14 @@ def classify(title: str, location: str, description: str, sector: str, src: dict
     hard = re.search(r"(?<![a-z])(engineer\w*|developer\w*|software|devops|data scien\w*)(?![a-z])", t)
     if hard:
         return v("drop", f"function excluded ('{hard.group(0)}')")
-    excluded = EXCLUDE.search(t)
-    if excluded and not RESCUE.search(t):
-        return v("drop", f"function excluded ('{excluded.group(0)}')")
     strong = LEVEL_STRONG.search(t)
+    broad = sector in ("sports", "general")
+    hits = [m.group(0) for m in EXCLUDE.finditer(t)]
+    if broad and strong:
+        # internships / graduate / trainee roles: management-type functions (finance, operations, projects …) are fine
+        hits = [h for h in hits if not SOFT_EXCLUDE.fullmatch(h)]
+    if hits and not RESCUE.search(t):
+        return v("drop", f"function excluded ('{hits[0]}')")
     weak = LEVEL_WEAK.search(t)
     senior = SENIOR.search(t)
     manager = MANAGER.search(t)
@@ -203,7 +232,17 @@ def classify(title: str, location: str, description: str, sector: str, src: dict
     is_wealth = sector == "wealth"
     func_rx = FUNC_WEALTH if is_wealth else FUNC_SPORTS
     fm = func_rx.search(t)
+    if not fm and broad:
+        fm = FUNC_MGMT.search(t)
     fm_desc = func_rx.search(d[:4000]) if not fm else None
+    if not fm and not fm_desc and broad:
+        fm_desc = FUNC_MGMT.search(d[:4000])
+    if sector == "general" and not strong:
+        # general sector: only graduate-level roles (plus the classic entry titles at consultancies)
+        if fm and re.search(r"business analyst|associate consultant|junior consultant|analyst|associate", t) and years <= 2 \
+                and not manager:
+            return v("maybe", f"entry-level {fm.group(0)} role")
+        return v("drop", "general sector: not an internship/graduate/junior role")
     if is_wealth and src.get("wealth_arm_only"):
         # large universal banks: only their wealth / private-bank arm counts
         if not (WEALTH_CORE.search(t) or WEALTH_CORE.search(meta_n)):

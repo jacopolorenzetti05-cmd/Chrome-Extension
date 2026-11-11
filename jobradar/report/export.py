@@ -28,7 +28,7 @@ def export(out_dir=None) -> tuple[str, str]:
         w.writeheader()
         w.writerows(rows)
     wb = Workbook()
-    for title, sector in (("Sports", "sports"), ("Wealth Management", "wealth")):
+    for title, sector in (("Sports", "sports"), ("Wealth Management", "wealth"), ("General", "general")):
         ws = wb.create_sheet(title)
         ws.append(FIELDS)
         for r in rows:
