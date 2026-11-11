@@ -16,6 +16,7 @@ def test_blocklist_detected():
         assert is_aggregator(f"https://{d}/job/123"), d
     assert not is_aggregator("https://jobs.smartrecruiters.com/RedBull/123")
     assert not is_aggregator("https://boards.greenhouse.io/onrunning/jobs/1")
+    assert not is_aggregator("https://www.ccep.jobs/en/job/rotterdam/internship-fernandes-and-monster-energy/1299/1")
 
 
 SITE = Path(__file__).resolve().parent.parent / "site" / "data.json"
@@ -27,4 +28,5 @@ def test_dashboard_has_no_aggregator_urls():
     bad = [p["url"] for p in data["postings"] if is_aggregator(p["url"]) or is_aggregator(p.get("apply_url") or "")]
     assert not bad, bad
     for p in data["postings"]:
-        assert not any(a.strip(".") in p["url"].lower() for a in AGGREGATOR_DOMAINS), p["url"]
+        host = p["url"].split("/")[2].lower()
+        assert not any(host.startswith(b.split("/")[0]) or host.endswith("." + b.split("/")[0]) for b in BLOCKLIST), p["url"]

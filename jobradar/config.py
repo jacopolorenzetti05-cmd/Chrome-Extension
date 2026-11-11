@@ -29,8 +29,22 @@ AGGREGATOR_DOMAINS = [
 
 
 def is_aggregator(url: str) -> bool:
-    u = (url or "").lower()
-    return any(d in u for d in AGGREGATOR_DOMAINS)
+    """True if the URL's host (plus path, for entries like 'linkedin.com/jobs') belongs to a job board/aggregator."""
+    from urllib.parse import urlparse
+    u = urlparse((url or "").strip().lower())
+    host = u.netloc.split("@")[-1].split(":")[0]
+    hp = host + u.path
+    for d in AGGREGATOR_DOMAINS:
+        if "/" in d:
+            if ("." + hp).find("." + d) != -1 or hp.startswith(d):
+                return True
+        elif d.endswith("."):
+            # 'indeed.' matches indeed.com, de.indeed.com, indeed.co.uk …
+            if re.search(r"(^|\.)" + re.escape(d), host + "."):
+                return True
+        elif host == d or host.endswith("." + d):
+            return True
+    return False
 
 
 def load_sources(path: Path | None = None) -> list[dict]:

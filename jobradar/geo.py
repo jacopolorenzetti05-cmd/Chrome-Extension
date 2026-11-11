@@ -7,7 +7,12 @@ from .models import norm
 
 EUROPE = {"CH", "DE", "AT", "LU", "IT", "IE", "GB", "MC", "NL", "ES", "FR", "BE", "PT", "DK", "SE",
           "NO", "FI", "PL", "CZ", "SK", "HU", "SI", "HR", "RO", "BG", "GR", "CY", "MT", "EE", "LV",
-          "LT", "IS", "LI", "RS", "BA", "ME", "MK", "AL", "UA", "MD", "GI", "SM", "AD", "TR", "IM", "JE", "GG"}
+          "LT", "IS", "LI", "RS", "BA", "ME", "MK", "AL", "UA", "MD", "GI", "SM", "AD", "IM", "JE", "GG"}
+# ISO-2 codes we recognise when they end a location ("Almaty, KZ") – anything else ending a location is non-Europe
+OTHER_CODES = {"US", "CA", "MX", "BR", "AR", "CL", "CO", "PE", "CN", "HK", "SG", "JP", "KR", "IN", "AU", "NZ", "AE",
+               "SA", "QA", "BH", "IL", "ZA", "EG", "NG", "KE", "MA", "TH", "MY", "ID", "PH", "VN", "TW", "UY", "PA",
+               "KZ", "TR", "RU", "GE", "AM", "AZ", "UZ", "KW", "OM", "JO", "LB", "TN", "DZ", "GT", "CR", "DO", "EC",
+               "PR", "BO", "PY", "VE", "PK", "BD", "LK"}
 
 TIER1 = {"CH", "DE", "AT", "LU"}          # + Milan (handled in scoring)
 TIER2 = {"IE", "GB", "MC", "NL"}
@@ -37,15 +42,16 @@ COUNTRY_NAMES = {
     "RO": ["romania"], "BG": ["bulgaria"], "GR": ["greece", "griechenland"], "CY": ["cyprus"],
     "MT": ["malta"], "EE": ["estonia"], "LV": ["latvia"], "LT": ["lithuania"], "IS": ["iceland"],
     "LI": ["liechtenstein"], "RS": ["serbia"], "UA": ["ukraine"], "GI": ["gibraltar"],
-    "TR": ["turkey", "turkiye"], "IM": ["isle of man"], "JE": ["jersey"], "GG": ["guernsey"],
+    "TR": ["turkey", "turkiye", "turkei"], "KZ": ["kazakhstan", "kasachstan"], "RU": ["russia", "russland"], "IM": ["isle of man"], "JE": ["jersey"], "GG": ["guernsey"],
     "BA": ["bosnia"], "MK": ["north macedonia"], "AL": ["albania"], "ME": ["montenegro"],
     # non-Europe
-    "US": ["united states", "usa", "u s", "united states of america"],
+    "US": ["united states", "usa", "u s", "united states of america", "vereinigte staaten von amerika",
+           "vereinigte staaten"],
     "CA": ["canada"], "MX": ["mexico"], "BR": ["brazil", "brasil"], "AR": ["argentina"],
     "CL": ["chile"], "CO": ["colombia"], "PE": ["peru"],
-    "CN": ["china"], "HK": ["hong kong"], "SG": ["singapore"], "JP": ["japan"], "KR": ["korea", "south korea"],
-    "IN": ["india"], "AU": ["australia"], "NZ": ["new zealand"], "AE": ["united arab emirates", "uae"],
-    "SA": ["saudi arabia", "ksa"], "QA": ["qatar"], "BH": ["bahrain"], "IL": ["israel"], "ZA": ["south africa"],
+    "CN": ["china", "volksrepublik china"], "HK": ["hong kong"], "SG": ["singapore", "singapur"], "JP": ["japan"], "KR": ["korea", "south korea"],
+    "IN": ["india", "indien"], "AU": ["australia"], "NZ": ["new zealand"], "AE": ["united arab emirates", "uae", "vereinigte arabische emirate"],
+    "SA": ["saudi arabia", "ksa", "saudi arabien"], "QA": ["qatar"], "BH": ["bahrain"], "IL": ["israel"], "ZA": ["south africa"],
     "EG": ["egypt"], "NG": ["nigeria"], "KE": ["kenya"], "MA": ["morocco"], "TH": ["thailand"],
     "MY": ["malaysia"], "ID": ["indonesia"], "PH": ["philippines"], "VN": ["vietnam"], "TW": ["taiwan"],
     "UY": ["uruguay"], "PA": ["panama"], "BS": ["bahamas"], "KY": ["cayman islands"], "BM": ["bermuda"],
@@ -130,9 +136,32 @@ COUNTRY_LABEL = {"CH": "Switzerland", "DE": "Germany", "AT": "Austria", "LU": "L
 
 
 def countries(location: str) -> list[str]:
-    """Return ISO-2 country codes found in a free-text location (order of appearance, unique)."""
+    """Return ISO-2 country codes found in a free-text location (order of appearance, unique).
+
+    Each '|'-separated part is resolved on its own; an explicit country code or name at the END of a part
+    ("Florence, SC, US", "Geneva, GE, CH") wins over city names inside it."""
     if not location:
         return []
+    parts = [x for x in re.split(r"\s*[|;]\s*", location) if x.strip()]
+    if len(parts) > 1:
+        out: list[str] = []
+        for part in parts:
+            for c in countries(part):
+                if c not in out:
+                    out.append(c)
+        return out
+    last = re.split(r"[,(]", location.strip().rstrip(")"))[-1].strip()
+    if re.fullmatch(r"[A-Z]{2}", last):
+        if last == "UK":
+            return ["GB"]
+        if last in EUROPE or last in OTHER_CODES or last in COUNTRY_NAMES:
+            return [last]
+    if re.fullmatch(r"[A-Z]{3}", last) and last in ISO3:
+        return [ISO3[last]]
+    ln = norm(last)
+    for cc, names in COUNTRY_NAMES.items():
+        if ln in names:
+            return [cc]
     found: list[tuple[int, str]] = []
     raw = location
     # explicit codes like "Zurich, CH" / "London, GB" / "DEU" / "Austin, TX"

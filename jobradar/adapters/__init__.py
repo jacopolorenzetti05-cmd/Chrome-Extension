@@ -17,7 +17,7 @@ ADAPTERS = [
     "ashby", "workday", "successfactors", "jobylon", "html",
     # additional hiring systems found during discovery
     "oracle", "pinpoint", "softgarden", "phenom", "eightfold", "brassring", "beesite",
-    "gs", "hibob", "digitalrecruiters",
+    "gs", "hibob", "digitalrecruiters", "puma",
 ]
 
 

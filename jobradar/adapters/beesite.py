@@ -26,7 +26,7 @@ def fetch(src):
                 pid = m.get("PositionID") or it["MatchedObjectId"]
                 out[pid] = Posting(
                     id=f"{src['key']}:{pid}", company=src["name"], title=m.get("PositionTitle", ""),
-                    location=" | ".join(locs), url=m.get("PositionURI") or f"https://careers.db.com/professionals/search-roles/#/professional/job/{pid}",
+                    location=" | ".join(locs), url=_abs(m.get("PositionURI")) or f"https://careers.db.com/index.php?ac=jobad&id={pid}",
                     posted_at=iso_date(m.get("PublicationStartDate")), deadline=iso_date(m.get("ApplicationDeadline")),
                     source_adapter="beesite", source_key=src["key"],
                     extra={"career_level": ", ".join(c.get("Name", "") for c in m.get("CareerLevel", []))})
@@ -34,6 +34,12 @@ def fetch(src):
             if not items or first > res.get("SearchResultCountAll", 0) or first > p.get("max_results", 4000):
                 break
     return list(out.values())
+
+
+def _abs(u):
+    if not u:
+        return ""
+    return u if u.startswith("http") else "https://careers.db.com" + ("" if u.startswith("/") else "/") + u
 
 
 def detail(src, post):

@@ -198,6 +198,12 @@ def timing(title: str, text: str, kind: str) -> tuple[str, int]:
     m = START_RX.search(text or "")
     if m:
         return f"Start {m.group(2).capitalize() if not m.group(2).isdigit() else m.group(2)} {m.group(3)}", _fit(m)
+    mt = re.search(r"(?<![a-z])(" + MONTH_RX + r")\.? (20\d{2})(?![0-9])", norm(title))
+    if mt and mt.group(1) in MONTHS and len(mt.group(1)) > 2:
+        class _M:  # minimal match-like object for _fit
+            def __init__(s, mon, yr): s._g = (None, None, mon, yr)
+            def group(s, i): return s._g[i]
+        return f"Start {mt.group(1).capitalize()} {mt.group(2)}", _fit(_M(mt.group(1), mt.group(2)))
     if re.search(r"summer (?:20)?26|sommer 2026", t):
         return "Summer 2026", -1
     if re.search(r"\b(asap|immediately|ab sofort|sofort|immediate start|da subito|des que possible)\b", t):
@@ -274,10 +280,18 @@ def rule_score(rec: dict) -> tuple[int, str]:
     elif fit < 0:
         s -= 1.5
         why.append("timing clashes with Dublin term")
+    plang = rec.get("posting_language", "")
+    if not req and plang in ("French", "Spanish", "Dutch"):
+        s -= 1
+        why.append(f"posting in {plang}")
+    if lvl == "other":
+        s -= 1
     if rec.get("relevance") == "maybe":
         s -= 1.5
+        s = min(s, 8)
     s = max(1, min(10, round(s)))
-    return int(s), ("; ".join(why[:4]) or "borderline match").capitalize()
+    text = "; ".join(why[:4]) or "borderline match"
+    return int(s), text[0].upper() + text[1:]
 
 
 def claude_score(rec: dict, profile: str) -> tuple[int, str] | None:

@@ -63,25 +63,40 @@ def list_links(src) -> list[tuple[str, str]]:
             if res["status"] and res["status"] >= 400:
                 raise RuntimeError(f"HTTP {res['status']} on {u}")
             return harvest(res["url"], rendered_links=res["links"])
-        r = http.get(u)
+        r = http.get(u, timeout=p.get("timeout", 45))
         if r.status_code >= 400:
             raise RuntimeError(f"HTTP {r.status_code} on {u}")
-        return harvest(r.url, html=r.text)
+        body = r.text
+        if body.lstrip().startswith("{") and "json" in r.headers.get("content-type", ""):
+            # some career sites (e.g. Radancy) return the result list as HTML inside JSON
+            import json as _json
+
+            def strings(o):
+                if isinstance(o, str):
+                    yield o
+                elif isinstance(o, dict):
+                    for v in o.values():
+                        yield from strings(v)
+                elif isinstance(o, list):
+                    for v in o:
+                        yield from strings(v)
+            body = " ".join(strings(_json.loads(body)))
+        return harvest(r.url, html=body)
 
     if pg:
-        base = urls[0]
-        sep = "&" if "?" in base else "?"
-        start = pg.get("start", 0)
-        while start <= pg.get("max", 500):
-            got = load(f"{base}{sep}{pg['param']}={start}")
-            new = [g for g in got if g[0] not in {l[0] for l in links}]
-            if not new:
-                break
-            links.extend(new)
-            start += pg["step"]
-        urls = urls[1:]
-    for u in urls:
-        links.extend(load(u))
+        for base in urls:
+            sep = "&" if "?" in base else "?"
+            start = pg.get("start", 0)
+            while start <= pg.get("max", 500):
+                got = load(f"{base}{sep}{pg['param']}={pg.get('prefix', '')}{start}")
+                new = [g for g in got if g[0] not in {l[0] for l in links}]
+                if not new:
+                    break
+                links.extend(new)
+                start += pg.get("step", 1)
+    else:
+        for u in urls:
+            links.extend(load(u))
     # merge duplicates, keep the most informative link text
     best: dict[str, str] = {}
     for href, text in links:
@@ -134,7 +149,12 @@ def fetch(src):
         href, text = item
         m = idpat.search(href) if idpat else None
         jid = m.group(1) if m else re.sub(r"^https?://", "", href)
-        post = Posting(id=f"{src['key']}:{jid}", company=src["name"], title=text, location=p.get("default_location", ""),
+        loc = p.get("default_location", "")
+        if p.get("location_from_url"):
+            mm = re.search(p["location_from_url"], href)
+            if mm:
+                loc = mm.group(1).replace("-", " ").title()
+        post = Posting(id=f"{src['key']}:{jid}", company=src["name"], title=text, location=loc,
                        url=href, source_adapter="html", source_key=src["key"])
         if p.get("follow", True):
             try:

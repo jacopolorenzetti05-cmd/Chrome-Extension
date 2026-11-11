@@ -10,6 +10,7 @@ def fetch(src):
     company = p["company"]
     out, offset = [], 0
     filt = [f.lower() for f in p.get("company_name_contains", [])]
+    loc_rx = __import__("re").compile(p["location_contains"], __import__("re").I) if p.get("location_contains") else None
     while True:
         q = {"limit": 100, "offset": offset}
         if p.get("country"):
@@ -23,6 +24,8 @@ def fetch(src):
             loc_s = ", ".join(x for x in [loc.get("city"), loc.get("region"), (loc.get("country") or "").upper()] if x)
             if loc.get("remote"):
                 loc_s += " (remote)"
+            if loc_rx and not loc_rx.search(loc_s + " " + j.get("name", "")):
+                continue
             out.append(Posting(
                 id=f"{src['key']}:{j['id']}", company=src["name"], title=j["name"], location=loc_s,
                 url=f"https://jobs.smartrecruiters.com/{company}/{j['id']}",

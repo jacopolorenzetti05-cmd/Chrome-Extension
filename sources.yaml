@@ -158,7 +158,8 @@ sources:
   country: DE
   adapter: successfactors
   careers_url: https://fcbayern.com/de/karriere
-  params: {mode: rmk, base_url: "https://careers.fcbayern.com"}
+  params: {mode: rmk, base_url: "https://careers.fcbayern.com", render: true}
+  notes: SuccessFactors career site careers.fcbayern.com. It does not answer plain HTTP clients from some networks, so it is read with a headless browser.
 - name: Borussia Dortmund
   sector: sports
   segment: Club
@@ -196,11 +197,10 @@ sources:
   sector: sports
   segment: Club
   country: DE
-  adapter: html
+  adapter: smartrecruiters
   careers_url: https://rbleipzig.com/de/club/karriere/
-  params: {list_urls: ["https://rbleipzig.com/de/club/karriere/stellenangebote/"], render: true, wait_ms: 7000, scroll: true,
-           link_pattern: "jobs\\.smartrecruiters\\.com/RedBull/\\d+|rbleipzig\\.com/.*/stellenangebote/.+"}
-  notes: The careers page embeds Red Bull's SmartRecruiters jobs (those are also in the Red Bull source).
+  params: {company: RedBull, country: de, location_contains: "Leipzig"}
+  notes: RB Leipzig vacancies are published on Red Bull's SmartRecruiters account; this source keeps the Leipzig ones (the old rbleipzig.com Stellenangebote page now returns 404). Duplicates with the Red Bull source are shown once.
 - name: Bayer 04 Leverkusen
   sector: sports
   segment: Club
@@ -215,8 +215,8 @@ sources:
   country: AT
   adapter: smartrecruiters
   careers_url: https://www.redbullsalzburg.at/de/karriere
-  params: {company: RedBull, country: at}
-  notes: Red Bull Salzburg jobs are published on Red Bull's SmartRecruiters account; this source reads only the Austrian postings.
+  params: {company: RedBull, country: at, location_contains: "Red Bull Salzburg|FC Liefering|Liefering|Wals|Taxham|Akademie"}
+  notes: Red Bull Salzburg vacancies are published on Red Bull's SmartRecruiters account; this source keeps the club's ones (Wals-Siezenheim / Liefering / Akademie). Duplicates with the Red Bull source are shown once.
 - name: FC Basel 1893
   sector: sports
   segment: Club
@@ -229,9 +229,10 @@ sources:
   segment: Club
   country: IT
   adapter: html
-  careers_url: https://www.inter.it/it/careers
-  params: {list_urls: ["https://www.inter.it/it/careers"], render: true, link_pattern: "inter\\.it/.*careers/.+|inrecruiting|intervieweb"}
-  notes: The Inter careers URL returns 404 (no public vacancy page in Nov 2026). Fallback – check inter.it by hand.
+  careers_url: https://www.inter.it/it/posizioni-aperte
+  params: {list_urls: ["https://www.inter.it/it/posizioni-aperte"], render: true, wait_ms: 6000,
+           link_pattern: "inter\\.it/it/posizioni-aperte/.+|inrecruiting|intervieweb|lavoraconnoi|attal", default_location: "Milano, Italy"}
+  notes: Inter's "Posizioni aperte" page (indexed by search engines) returns 404 in Nov 2026 – Inter currently publishes no vacancy list. Fallback – check inter.it by hand.
 - name: AC Milan
   sector: sports
   segment: Club
@@ -393,9 +394,8 @@ sources:
   country: GB
   adapter: html
   careers_url: https://careers.sky.com/jobs
-  params: {list_urls: ["https://careers.sky.com/jobs"], render: true, link_pattern: "careers\\.sky\\.com/jobs/t-R\\d+", id_pattern: "/t-(R\\d+)",
-           paginate: {param: page, start: 1, step: 1, max: 40}, max_jobs: 400}
-  notes: Sky's own careers site (careers.sky.com); list is paginated.
+  params: {list_urls: ["https://careers.sky.com/jobs"], render: true, scroll: true, link_pattern: "careers\\.sky\\.com/jobs/t-R\\d+", id_pattern: "/t-(R\\d+)", partial: true}
+  notes: Sky's own careers site. The list is loaded page by page with JavaScript, so only the first page is read (partial list) – a posting that drops off it is only marked Removed if its own page is gone.
 - name: Warner Bros. Discovery (incl. Eurosport)
   sector: sports
   segment: Media
@@ -455,11 +455,10 @@ sources:
   sector: sports
   segment: Brand
   country: DE
-  adapter: html
+  adapter: puma
   careers_url: https://about.puma.com/en/careers/job-openings
-  params: {list_urls: ["https://about.puma.com/en/careers/job-openings"], render: true, wait_ms: 8000, scroll: true,
-           link_pattern: "about\\.puma\\.com/[a-z]{2}/careers/job-openings/[^#?]+-\\d+|myworkdayjobs\\.com/.*puma|puma\\.wd\\d"}
-  notes: JavaScript job finder on about.puma.com.
+  params: {corporate_only: true, regions: [Europe, Germany Corporate, EEMEA]}
+  notes: about.puma.com job finder calls PUMA own search endpoint (/dd_job_search); store/retail jobs and jobs outside Europe are skipped.
 - name: Nike (EMEA)
   sector: sports
   segment: Brand
@@ -467,8 +466,8 @@ sources:
   adapter: html
   careers_url: https://careers.nike.com/jobs
   params: {list_urls: ["https://careers.nike.com/jobs?location=Netherlands", "https://careers.nike.com/jobs?location=Germany", "https://careers.nike.com/jobs?location=United%20Kingdom", "https://careers.nike.com/jobs?location=Italy", "https://careers.nike.com/jobs?location=Switzerland"],
-           render: true, wait_ms: 6000, link_pattern: "careers\\.nike\\.com/[^?#]+/job/R-\\d+", id_pattern: "/job/(R-\\d+)", max_jobs: 250}
-  notes: Nike's own careers site; EMEA HQ Hilversum plus key European markets.
+           render: true, wait_ms: 6000, link_pattern: "careers\\.nike\\.com/[^?#]+/job/R-\\d+", id_pattern: "/job/(R-\\d+)", max_jobs: 250, partial: true}
+  notes: Nike's own careers site; EMEA HQ Hilversum plus key European markets. Only the first result page per country is readable (partial list) – removal is decided by the posting's own page.
 - name: "On"
   sector: sports
   segment: Brand
@@ -497,8 +496,9 @@ sources:
   country: FR
   adapter: digitalrecruiters
   careers_url: https://joinus.decathlon.fr/en/annonces
-  params: {domain: joinus.decathlon.fr, lang: en}
-  notes: Decathlon France career site (Cegid DigitalRecruiters). Store roles are filtered out.
+  params: {domain: joinus.decathlon.fr, lang: en,
+           title_exclude: "stage commerce|stage .*(exp[ée]rience|service).*client|magasin|vendeu|conseill|h[ôo]te|caisse|logisti|entrep[ôo]t|atelier|technicien|temps partiel|CDD|saisonnier"}
+  notes: Decathlon France career site (Cegid DigitalRecruiters). Short in-store internships and store jobs are excluded with title_exclude.
 - name: Red Bull
   sector: sports
   segment: Sponsor brand
@@ -512,10 +512,11 @@ sources:
   segment: Sponsor brand
   country: NL
   adapter: html
-  careers_url: https://careers.theheinekencompany.com/
-  params: {list_urls: ["https://careers.theheinekencompany.com/Early-Careers", "https://careers.theheinekencompany.com/job-search?country=netherlands", "https://careers.theheinekencompany.com/job-search?country=italy", "https://careers.theheinekencompany.com/job-search?country=switzerland", "https://careers.theheinekencompany.com/job-search?country=united-kingdom", "https://careers.theheinekencompany.com/job-search?country=ireland", "https://careers.theheinekencompany.com/job-search?country=austria", "https://careers.theheinekencompany.com/job-search?country=germany"],
-           link_pattern: "careers\\.theheinekencompany\\.com/job/[a-z0-9-]+/[a-z0-9-]+/[a-z0-9-]+", id_pattern: "/job/(.+)$", max_jobs: 250}
-  notes: HEINEKEN's own careers site (SuccessFactors behind it); European operating companies.
+  careers_url: https://careers.theheinekencompany.com/Job-Listing
+  params: {list_urls: ["https://careers.theheinekencompany.com/Job-Listing?field_location_country_code_1%5B%5D=NL&field_location_country_code_1%5B%5D=IT&field_location_country_code_1%5B%5D=AT&field_location_country_code_1%5B%5D=CH&field_location_country_code_1%5B%5D=GB&field_location_country_code_1%5B%5D=IE&field_location_country_code_1%5B%5D=DE&field_location_country_code_1%5B%5D=BE&field_location_country_code_1%5B%5D=ES&field_location_country_code_1%5B%5D=FR"],
+           link_pattern: "careers\\.theheinekencompany\\.com/job/[a-z0-9-]+/[a-z0-9-]+/[a-z0-9-]+$", id_pattern: "/job/(.+)$", location_from_url: "/job/[a-z0-9-]+/([a-z-]+)/",
+           paginate: {param: page, prefix: "0%2C0%2C", start: 0, step: 1, max: 60}, max_jobs: 600}
+  notes: HEINEKEN's own careers site (Drupal; SuccessFactors behind it). Filtered to European operating companies with the site's own country filter.
 - name: AB InBev
   sector: sports
   segment: Sponsor brand
@@ -537,8 +538,9 @@ sources:
   country: CH
   adapter: html
   careers_url: https://careers.coca-colahellenic.com/en_US/careers
-  params: {list_urls: ["https://careers.coca-colahellenic.com/en_US/careers/SearchJobs/?listFilterMode=1&jobRecordsPerPage=100", "https://careers.coca-colahellenic.com/en_US/careers/SearchJobs/?listFilterMode=1&jobRecordsPerPage=100&jobOffset=100", "https://careers.coca-colahellenic.com/en_US/careers/SearchJobs/?listFilterMode=1&jobRecordsPerPage=100&jobOffset=200"],
-           link_pattern: "careers\\.coca-colahellenic\\.com/en_US/careers/JobDetail/[^?#]+/\\d+", id_pattern: "/(\\d+)$", max_jobs: 300}
+  params: {list_urls: ["https://careers.coca-colahellenic.com/en_US/careers/SearchJobs/?listFilterMode=1&projectRecordsPerPage=50"],
+           paginate: {param: projectOffset, start: 0, step: 50, max: 1000},
+           link_pattern: "careers\\.coca-colahellenic\\.com/en_US/careers/ProjectDetail/[^?#]*\\d+$", id_pattern: "/(\\d+)$", max_jobs: 600}
   notes: Avature career site of Coca-Cola HBC.
 - name: Coca-Cola Europacific Partners
   sector: sports
@@ -547,8 +549,8 @@ sources:
   adapter: html
   careers_url: https://www.ccep.jobs/en/search-jobs
   params: {list_urls: ["https://www.ccep.jobs/en/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=500&Distance=50&ShowRadius=False&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0"],
-           link_pattern: "ccep\\.jobs/en/job/[^/]+/[^/]+/1299/\\d+", id_pattern: "/1299/(\\d+)", title_from: link, follow: false, max_jobs: 600}
-  notes: cocacolaep.com is behind Cloudflare; CCEP's official job site ccep.jobs is read instead (titles from the list, details on demand).
+           link_pattern: "ccep\\.jobs/en/job/[^/]+/[^/]+/1299/\\d+", id_pattern: "/1299/(\\d+)", max_jobs: 700}
+  notes: cocacolaep.com is behind Cloudflare; CCEP's official job site ccep.jobs (Radancy) is read instead – the full result list in one request, then each posting page.
 - name: Mastercard
   sector: sports
   segment: Sponsor brand
@@ -582,6 +584,7 @@ sources:
   adapter: brassring
   careers_url: https://jobs.ubs.com/TGnewUI/Search/Home/Home?partnerid=25008&siteid=5012
   params: {host: jobs.ubs.com, partner_id: 25008, site_id: 5012, detail_cap: 40}
+  wealth_arm_only: true
 - name: Barclays (incl. Private Bank)
   sector: wealth
   segment: Investment bank (wealth arm)
@@ -642,8 +645,8 @@ sources:
   country: LI
   adapter: html
   careers_url: https://www.lgt.com/global-en/career/jobs
-  params: {list_urls: ["https://www.lgt.com/global-en/career/jobs"], link_pattern: "lgt\\.com/global-en/career/jobs/[a-z0-9-]+-\\d+$",
-           id_pattern: "-(\\d+)$", paginate: {param: "pageNum", start: 1, step: 1, max: 30}, max_jobs: 400}
+  params: {list_urls: ["https://www.lgt.com/global-en/career/jobs/34662!jobSearch"], link_pattern: "lgt\\.com/global-en/career/jobs/[a-z0-9-]+-\\d+$",
+           id_pattern: "-(\\d+)$", paginate: {param: "pageNum", start: 1, step: 1, max: 40}, max_jobs: 500}
   notes: LGT's own careers site (paginated list).
 - name: Rothschild & Co
   sector: wealth
@@ -652,6 +655,7 @@ sources:
   adapter: workday
   careers_url: https://www.rothschildandco.com/en/careers/experienced-professionals/vacancies/
   params: {host: rothschildandco.wd3.myworkdayjobs.com, tenant: rothschildandco, site: Rothschildandco_Lateral}
+  wealth_arm_only: true
 - name: Schroders
   sector: wealth
   segment: Asset & wealth manager
@@ -683,10 +687,11 @@ sources:
   country: FR
   adapter: html
   careers_url: https://group.bnpparibas/en/careers/all-job-offers
-  params: {list_urls: ["https://group.bnpparibas/en/careers/all-job-offers/wealth-management", "https://group.bnpparibas/en/careers/all-job-offers/internship", "https://group.bnpparibas/en/careers/all-job-offers/graduate-programme"],
-           link_pattern: "group\\.bnpparibas/en/careers/job-offer/[a-z0-9-]+", id_pattern: "/job-offer/([a-z0-9-]+)", max_jobs: 200}
+  params: {list_urls: ["https://group.bnpparibas/en/careers/all-job-offers?q=wealth", "https://group.bnpparibas/en/careers/all-job-offers?q=private+banking", "https://group.bnpparibas/en/careers/all-job-offers?q=&type=internship"], partial: true,
+           render: true, follow_render: true, wait_ms: 5000,
+           link_pattern: "group\\.bnpparibas/en/careers/job-offer/[a-z0-9-]+", id_pattern: "/job-offer/([a-z0-9-]+)", max_jobs: 120}
   wealth_arm_only: true
-  notes: BNP Paribas group career site (own platform); Wealth Management, internship and graduate listings.
+  notes: BNP Paribas group career site (own platform; answers 403 to plain HTTP clients, so it is rendered). Searches for wealth / private banking / internships; only the first result page is readable (partial list – removal is decided by the posting's own page).
 - name: Mediobanca (incl. Private Banking)
   sector: wealth
   segment: Private bank

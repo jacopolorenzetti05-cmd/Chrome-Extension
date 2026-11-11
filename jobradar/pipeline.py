@@ -48,10 +48,15 @@ def health_label(ok: bool, fetched: int, history: list[dict]) -> str:
         return "ERROR"
     prev = [h["fetched"] for h in history if h["ok"]]
     if fetched == 0:
-        return "ZERO (usually has jobs)" if prev and max(prev) > 0 else "OK (0 open jobs)"
+        return "ZERO (usually has jobs)" if prev and max(prev) > 0 else "OK (0 open jobs listed)"
     if prev and fetched < 0.3 * (sum(prev) / len(prev)) and sum(prev) / len(prev) > 10:
         return "WARN (far fewer jobs than usual)"
     return "OK"
+
+
+def _meta(p: Posting) -> str:
+    keys = ("department", "division", "category", "function", "jobFunction", "career_level", "jobFamily")
+    return " ".join(str(p.extra.get(k, "")) for k in keys if p.extra.get(k))
 
 
 def classify_and_enrich(src: dict, posts: list[Posting], store: Store | None, pay_table: dict,
@@ -70,7 +75,7 @@ def classify_and_enrich(src: dict, posts: list[Posting], store: Store | None, pa
             p.salary_text = p.salary_text or prev.get("salary_text") or ""
             if prev.get("location") and len(prev["location"]) > len(p.location):
                 p.location = prev["location"]
-        v = filters.classify(p.title, p.location, desc, src["sector"], src)
+        v = filters.classify(p.title, p.location, desc, src["sector"], src, _meta(p))
         if v.relevance != "drop" and not desc and hasattr(mod, "detail"):
             if prev and prev.get("title") == p.title and prev.get("relevance") == "drop" and not refresh:
                 pass  # dropped after a detail read in an earlier run – keep that decision
@@ -97,7 +102,7 @@ def classify_and_enrich(src: dict, posts: list[Posting], store: Store | None, pa
     for p, v in records:
         prev = old.get(p.id)
         if p.id in todo_ids or p.description_text:
-            v = filters.classify(p.title, p.location, p.description_text, src["sector"], src)
+            v = filters.classify(p.title, p.location, p.description_text, src["sector"], src, _meta(p))
         elif prev and prev.get("title") == p.title and prev.get("relevance") == "drop" and not refresh and v.relevance != "drop":
             v = filters.Verdict("drop", prev.get("reason") or "dropped earlier", v.level, v.region, v.country)
         rec = {
@@ -189,7 +194,7 @@ def run(dry_run: bool = False, do_verify: bool = True, only: list[str] | None = 
         store.add_source_run(run_id=run_id, run_at=started, **{k: v for k, v in row.items()
                                                                    if k not in ("notes", "careers_url")})
         if ok:
-            _apply_history(store, key, recs, today, started)
+            _apply_history(store, key, recs, today, started, partial=bool(s["params"].get("partial")), log=log)
     for s in disabled:
         summary["sources"].append({"source_key": s["key"], "name": s["name"], "sector": s["sector"], "adapter": s["adapter"],
                                    "ok": 0, "fetched": 0, "relevant": 0, "maybe": 0, "error": "", "duration": 0,
@@ -220,7 +225,8 @@ def verify_records(recs: list[dict], log=print, workers: int = 10):
     log(f"  verified {len(recs) - len(bad)}/{len(recs)} OK; {len(bad)} failed (hidden from the active view)")
 
 
-def _apply_history(store: Store, key: str, recs: list[dict], today: str, run_at: str):
+def _apply_history(store: Store, key: str, recs: list[dict], today: str, run_at: str, partial: bool = False,
+                   log=print):
     seen = set()
     for rec in recs:
         seen.add(rec["id"])
@@ -240,6 +246,13 @@ def _apply_history(store: Store, key: str, recs: list[dict], today: str, run_at:
     for pid, prev in store.by_source(key).items():
         if pid in seen or prev["status"] == "removed":
             continue
+        if partial and prev.get("relevance") in ("keep", "maybe"):
+            # the source only exposes part of its list (e.g. first pages): a posting that is not in today's list
+            # counts as missing only if its official page is gone too
+            ok, note = verify.check(prev["url"], prev["title"], prev.get("source_adapter") or "", allow_render=True)
+            if ok:
+                store.update(pid, verified=1, verify_note=note + " (not in today's partial list)", consecutive_misses=0)
+                continue
         misses = (prev["consecutive_misses"] or 0) + 1
         if misses >= MISSES_TO_REMOVE:
             store.update(pid, consecutive_misses=misses, status="removed", removed_at=today)

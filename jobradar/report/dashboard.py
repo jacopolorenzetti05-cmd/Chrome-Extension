@@ -37,6 +37,7 @@ td.sc{font-weight:700;font-size:16px;text-align:center}.s9{color:var(--ok)}.s7{c
  .card .top{display:flex;justify-content:space-between;gap:8px}.card .sc{font-size:20px;font-weight:700}}
 .health td.st{font-weight:700}.okc{color:var(--ok)}.badc{color:var(--bad)}.warnc{color:var(--warn)}
 .empty{padding:24px;text-align:center;color:var(--mute)}
+td.c-pay{min-width:140px}td.c-why{min-width:260px}td.c-title{min-width:230px}td.c-url{min-width:150px}
 </style></head><body>
 <header><h1>Job Radar</h1><div class="sub">Official postings only · read directly from employers' hiring systems · updated __UPDATED__ · __COUNTS__</div></header>
 <nav><button data-tab="sports" class="on">Sports</button><button data-tab="wealth">Wealth Management</button><button data-tab="health">Source health</button></nav>
@@ -64,10 +65,10 @@ function rows(){const c=$("#fCountry").value,st=$("#fStatus").value,rel=$("#fRel
  .sort((a,b)=>{let x=a[sortKey]??"",y=b[sortKey]??"";if(typeof x==="number"||typeof y==="number"){x=+x||0;y=+y||0}return (x>y?1:x<y?-1:0)*sortDir||((b.score||0)-(a.score||0))})}
 function cell(p,k){switch(k){
  case "score":return `<td class="sc ${scClass(p.score)}">${p.score??""}</td>`;
- case "title":return `<td><b>${esc(p.title)}</b>${p.relevance==="maybe"?' <span class="chip">maybe</span>':""}${p.level==="working_student"?' <span class="chip">Werkstudent</span>':""}<div class="small">${esc(p.reason)}</div></td>`;
+ case "title":return `<td class="c-title"><b>${esc(p.title)}</b>${p.relevance==="maybe"?' <span class="chip">maybe</span>':""}${p.level==="working_student"?' <span class="chip">Werkstudent</span>':""}<div class="small">${esc(p.reason)}</div></td>`;
  case "type":return `<td>${esc(p.type)}<div class="small">${esc(p.timing)}</div></td>`;
  case "display_status":return `<td><span class="chip ${p.display_status.split(" ")[0]}">${esc(p.display_status)}</span></td>`;
- case "url":return `<td><a href="${esc(p.url)}" target="_blank" rel="noopener">Open posting ↗</a><div class="small">${esc(p.verify_note||"")}</div></td>`;
+ case "url":return `<td class="c-url"><a href="${esc(p.url)}" target="_blank" rel="noopener">Open posting ↗</a><div class="small">${esc(p.verify_note||"")}</div></td>`;
  case "my_status":return `<td>${esc(p.my_status)}${p.my_note?`<div class="small">${esc(p.my_note)}</div>`:""}<div class="small" title="id for my_status.yaml">${esc(p.id)}</div></td>`;
  default:return `<td>${esc(p[k])}</td>`}}
 function renderJobs(){const r=rows();
@@ -113,7 +114,7 @@ def build(store: Store | None = None, out_dir=None) -> str:
               f"{sum(1 for h in health if h['health'].startswith('OK'))}/{len(health)} sources OK"
               + (f" · {unverified} hidden (URL check failed)" if unverified else ""))
     page = (TEMPLATE.replace("__DATA__", json.dumps(payload, ensure_ascii=False).replace("</", "<\\/"))
-            .replace("__UPDATED__", html.escape(payload["generated"].replace("T", " ") + " UTC"))
+            .replace("__UPDATED__", html.escape(payload["generated"][:16].replace("T", " ") + " UTC"))
             .replace("__COUNTS__", html.escape(counts)))
     (out_dir / "index.html").write_text(page, encoding="utf-8")
     (out_dir / "data.json").write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import datetime as dt
+import re
 
 from .. import config
 from ..store import Store
@@ -52,7 +53,7 @@ def postings(store: Store, include_removed: bool = True) -> list[dict]:
     # the same official posting can be reachable from two sources (e.g. Red Bull + RB Salzburg): show it once
     seen, uniq = set(), []
     for r in out:
-        k = (r.get("url") or "").split("?")[0].rstrip("/").lower()
+        k = re.sub(r"[?&](utm_[a-z]+|feedId|source|gh_jid|l)=[^&]*", "", (r.get("url") or "").lower()).rstrip("/?&")
         if k in seen:
             continue
         seen.add(k)

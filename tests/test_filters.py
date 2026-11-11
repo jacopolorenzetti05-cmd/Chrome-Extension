@@ -58,6 +58,8 @@ def test_unpaid_is_dropped():
     assert rel("Marketing Intern", "Milan", "This is an unpaid internship.") == "drop"
 
 
-def test_unknown_location_falls_back_to_source_country():
+def test_unknown_location_uses_hq_for_europe_check_only():
     v = classify("Sponsorship Intern", "", "", "sports", {"country": "CH"})
-    assert v.relevance == "keep" and v.country == "CH"
+    assert v.relevance == "keep" and v.region == "europe" and v.country == ""
+    v = classify("Sponsorship Intern", "", "", "sports", {"country": "US"})
+    assert v.relevance == "maybe"

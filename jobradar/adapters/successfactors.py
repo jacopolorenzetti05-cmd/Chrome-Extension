@@ -52,9 +52,17 @@ def _rmk(src):
     path = p.get("search_path", "/search/")
     out, start = {}, 0
     while True:
-        r = http.get(f"{base}{path}", params={"q": p.get("query", ""), "startrow": start, **p.get("extra_query", {})})
-        r.raise_for_status()
-        soup = BeautifulSoup(r.text, "lxml")
+        if p.get("render"):
+            sep = "&" if "?" in path else "?"
+            res = Browser.get().render(f"{base}{path}{sep}q={p.get('query', '')}&startrow={start}", wait_ms=3000)
+            if res["status"] >= 400:
+                raise RuntimeError(f"HTTP {res['status']}")
+            html_ = res["html"]
+        else:
+            r = http.get(f"{base}{path}", params={"q": p.get("query", ""), "startrow": start, **p.get("extra_query", {})})
+            r.raise_for_status()
+            html_ = r.text
+        soup = BeautifulSoup(html_, "lxml")
         rows = soup.select("tr.data-row") or soup.select("li.job-tile") or soup.select("div.job-tile")
         new = 0
         for row in rows:
@@ -151,11 +159,15 @@ def detail(src, post):
     if src["params"].get("mode") == "feed":
         return
     if src["params"].get("mode", "rmk") == "rmk":
-        r = http.get(post.url)
-        r.raise_for_status()
-        soup = BeautifulSoup(r.text, "lxml")
+        if src["params"].get("render"):
+            page_html = Browser.get().render(post.url, wait_ms=2500)["html"]
+        else:
+            r = http.get(post.url)
+            r.raise_for_status()
+            page_html = r.text
+        soup = BeautifulSoup(page_html, "lxml")
         d = soup.select_one(".jobdescription") or soup.select_one("[itemprop=description]") or soup.select_one(".job")
-        post.description_text = html_to_text(str(d)) if d else html_adapter.parse_job_page(r.text, post.url)["description"]
+        post.description_text = html_to_text(str(d)) if d else html_adapter.parse_job_page(page_html, post.url)["description"]
         loc = soup.select_one("[itemprop=jobLocation]") or soup.select_one(".jobGeoLocation")
         if loc and not post.location:
             post.location = clean_ws(loc.get_text(" "))

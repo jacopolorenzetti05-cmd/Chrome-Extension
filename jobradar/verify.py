@@ -20,6 +20,20 @@ JS_ADAPTERS = {"oracle", "eightfold", "phenom", "successfactors", "hibob", "gs",
 
 
 def title_on_page(title: str, text_n: str) -> tuple[bool, str]:
+    ok, how = _title_on_page(title, text_n)
+    if ok:
+        return ok, how
+    # internal notes in brackets ("(Ex Barbagallo)", "[10/2026]") are often only in the list title
+    core = re.sub(r"\s*[\(\[][^\)\]]*[\)\]]", " ", title)
+    core = re.split(r"\s+[|]\s+|\s+[-–]\s+(?=[A-Z][a-z]+ ?[-–]? ?[A-Z][a-z]+$)", core)[0]
+    if norm(core) and norm(core) != norm(title):
+        ok2, how2 = _title_on_page(core, text_n)
+        if ok2:
+            return True, how2 + ", without bracketed note"
+    return ok, how
+
+
+def _title_on_page(title: str, text_n: str) -> tuple[bool, str]:
     t = norm(title)
     if not t:
         return False, "empty title"

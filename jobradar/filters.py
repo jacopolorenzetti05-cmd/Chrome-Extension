@@ -49,9 +49,10 @@ FUNC_WEALTH = _rx([
     r"awm", r"family office", r"uhnw", r"hnw\w*", r"client advis\w*", r"client service\w*", r"client relationship\w*",
     r"client\w*", r"relationship manage\w*", r"relationship\w*", r"advisory", r"investment advis\w*",
     r"investment consult\w*", r"investment specialist", r"kundenberat\w*", r"anlageberat\w*", r"vermogensverwaltung",
-    r"consulenza", r"consulente finanziari\w*", r"private banker\w*", r"banker", r"sales", r"business management",
-    r"business manager", r"coverage", r"products? specialist", r"portfolio", r"investment", r"market(?:s)? (?:head|team)",
-    r"gestion de fortune", r"gestione patrimon\w*", r"distribution", r"intermediar\w*"])
+    r"consulenza", r"consulente finanziari\w*", r"private banker\w*", r"sales", r"business management",
+    r"business manager", r"investment specialist", r"products? specialist", r"gestion de fortune",
+    r"gestione patrimon\w*", r"intermediar\w*", r"berater\w*", r"external asset manag\w*", r"eam",
+    r"service clients?", r"clientele"])
 WEALTH_CORE = _rx([r"private bank\w*", r"private client\w*", r"wealth\w*", r"family office", r"uhnw", r"hnw\w*",
                    r"client advis\w*", r"relationship manage\w*", r"kundenberat\w*", r"anlageberat\w*",
                    r"vermogensverwaltung", r"private banker\w*", r"gestion de fortune", r"gestione patrimon\w*",
@@ -93,12 +94,23 @@ EXCLUDE = _rx([
     r"animation", r"gaming", r"esports", r"media operations", r"broadcast operations", r"broadcast engineer",
     r"seo", r"sem", r"performance marketing", r"growth hacker", r"data analyst", r"business intelligence", r"bi",
     r"analytics", r"cfd", r"aerodynamic\w*", r"simulation", r"vehicle", r"composite\w*", r"machinist", r"fabricat\w*",
-    r"cnc", r"race", r"electronics", r"embedded", r"firmware"])
+    r"cnc", r"race", r"electronics", r"embedded", r"firmware", r"student marketeer\w*", r"brand ambassador\w*",
+    r"campus ambassador\w*", r"promoter\w*", r"merchandiser\w*", r"filial\w*", r"branch", r"teller",
+    r"investment bank\w*", r"m a", r"capital markets", r"corporate finance", r"leveraged finance", r"ecm", r"dcm",
+    r"fig", r"restructuring", r"private equity", r"private markets", r"structur\w*", r"derivative\w*",
+    r"securities", r"prime services", r"global markets", r"sales trading", r"sales and trading", r"research",
+    r"accounting", r"wealthtech", r"fintech", r"architect", r"business architect", r"troisieme", r"3eme", r"seconde",
+    r"collegien\w*", r"lyceen\w*", r"schuler\w*", r"schulpraktik\w*", r"ingenieur\w*", r"planning", r"planner",
+    r"amelioration continue", r"continuous improvement", r"production", r"produktion", r"quality", r"qualite",
+    r"qualita", r"supply", r"maintenance", r"manufactur\w*", r"r d", r"laborator\w*", r"finance", r"financial",
+    r"finanz\w*", r"comptab\w*", r"contabil\w*", r"auditor\w*", r"tresorerie", r"payroll", r"procure\w*",
+    r"achats", r"acquisti", r"compras", r"approvisionn\w*", r"cogs"])
 # functions that are fine to keep despite an EXCLUDE word (e.g. "Sales Operations" is still excluded, but
 # "Commercial Partnerships – Media Rights" is not touched). Title words that rescue an excluded match:
 RESCUE = _rx([r"partnerships?", r"sponsorship\w*", r"sponsoring", r"commercial", r"business development",
               r"private bank\w*", r"wealth", r"client advis\w*", r"relationship manage\w*", r"key account\w*",
-              r"licensing", r"hospitality", r"media rights"])
+              r"licensing", r"hospitality", r"media rights", r"financial advis\w*", r"consulent\w* finanziar\w*",
+              r"finanzberat\w*", r"commercial finance", r"revenue"])
 NON_EUROPE_ONLY = _rx([r"usa only", r"us only", r"u s based", r"must be based in the us", r"apac only"])
 UNPAID = _rx([r"unpaid", r"non retribuit\w*", r"unbezahlt\w*", r"unvergutet\w*", r"non remunerat\w*", r"sin remuneracion",
               r"no remunerad\w*", r"volunteer position"])
@@ -140,21 +152,27 @@ def max_years_required(desc: str) -> int:
     return max(yrs) if yrs else 0
 
 
-def classify(title: str, location: str, description: str, sector: str, src: dict | None = None) -> Verdict:
+def classify(title: str, location: str, description: str, sector: str, src: dict | None = None,
+             meta: str = "") -> Verdict:
+    """meta = structured hints from the hiring system (department, division, category …)."""
     src = src or {}
     t = norm(title)
+    meta_n = norm(meta)
     d = norm(description)[:15000]
     loc = location or ""
     reg = geo.region(loc)
     if reg == "unknown" and src.get("country"):
-        loc = f"{loc} {src.get('country')}".strip()
-        reg = geo.region(geo.COUNTRY_LABEL.get(src["country"], src["country"]))
-    country = geo.primary_country(loc) or (src.get("country") if reg != "non-europe" else "")
+        # no usable location: the organisation's HQ decides Europe vs not, but no country is invented
+        reg = "europe" if src["country"] in geo.EUROPE else "unknown"
+    country = geo.primary_country(loc)
     lvl = level_of(t, d)
     v = lambda rel, why: Verdict(rel, why, lvl, reg, country or "")
 
     if reg == "non-europe":
         return v("drop", "outside Europe")
+    tx = (src.get("params") or {}).get("title_exclude") or src.get("title_exclude")
+    if tx and re.search(tx, title, re.I):
+        return v("drop", "excluded by source rule (title_exclude)")
     if UNPAID.search(d) or UNPAID.search(t):
         return v("drop", "unpaid")
     excluded = EXCLUDE.search(t)
@@ -184,7 +202,7 @@ def classify(title: str, location: str, description: str, sector: str, src: dict
     fm_desc = func_rx.search(d[:4000]) if not fm else None
     if is_wealth and src.get("wealth_arm_only"):
         # large universal banks: only their wealth / private-bank arm counts
-        if not (WEALTH_CORE.search(t) or WEALTH_CORE.search(d[:3000])):
+        if not (WEALTH_CORE.search(t) or WEALTH_CORE.search(meta_n)):
             if strong and fm:
                 return v("maybe", "entry-level client/sales role outside the wealth arm")
             return v("drop", "not in the wealth / private-bank arm")
@@ -195,7 +213,7 @@ def classify(title: str, location: str, description: str, sector: str, src: dict
         elif fm_desc:
             rel, why = "maybe", f"{lvl}; function only in description ('{fm_desc.group(0)}')"
         else:
-            rel, why = "maybe", f"{lvl}; function not commercial/client-facing"
+            return v("drop", f"{lvl} but no commercial/client-facing function")
     elif fm and (weak or junior_manager):
         rel, why = ("keep" if years <= 2 and (not manager or junior_manager) else "maybe"), f"junior-level {fm.group(0)} role"
         if rel == "keep" and years == 0 and not re.search(r"junior|assistant|coordinator|associate", t):
