@@ -234,10 +234,14 @@ def verify_records(recs: list[dict], log=print, workers: int = 10):
             rec["verified"], rec["verify_note"], rec["verified_at"] = int(ok), note, now_iso()
             if not ok:
                 retry.append(rec)
-    # second pass with a headless browser for JavaScript-rendered pages / bot checks
-    for rec in retry:
-        ok, note = verify.check(rec["url"], rec["title"], rec.get("source_adapter", ""), allow_render=True)
+    # second pass with headless browsers for JavaScript-rendered pages / bot checks (4 browsers in parallel)
+    def _r(args):
+        i, rec = args
+        ok, note = verify.check(rec["url"], rec["title"], rec.get("source_adapter", ""), allow_render=True,
+                                slot=1 + i % 4)
         rec["verified"], rec["verify_note"], rec["verified_at"] = int(ok), note, now_iso()
+    with ThreadPoolExecutor(4) as ex:
+        list(ex.map(_r, list(enumerate(retry))))
     bad = [r for r in recs if not r["verified"]]
     log(f"  verified {len(recs) - len(bad)}/{len(recs)} OK; {len(bad)} failed (hidden from the active view)")
 

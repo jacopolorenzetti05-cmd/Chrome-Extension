@@ -48,7 +48,7 @@ def _title_on_page(title: str, text_n: str) -> tuple[bool, str]:
     return (ratio >= 0.85 and len(words) >= 2), f"{ratio:.0%} of title words"
 
 
-def check(url: str, title: str, adapter: str = "", allow_render: bool = True) -> tuple[bool, str]:
+def check(url: str, title: str, adapter: str = "", allow_render: bool = True, slot: int = 0) -> tuple[bool, str]:
     if not url or not url.startswith("http"):
         return False, "no URL"
     if is_aggregator(url):
@@ -71,7 +71,7 @@ def check(url: str, title: str, adapter: str = "", allow_render: bool = True) ->
         note = f"HTTP 200 but {how}"
     if allow_render and (adapter in JS_ADAPTERS or status in (0, 403, 429, 202) or (r is not None and status == 200)):
         try:
-            res = Browser.get().render(url, wait_ms=4000)
+            res = Browser.get(slot).render(url, wait_ms=4000)
         except Exception as e:
             return False, f"{note}; render failed: {type(e).__name__}"
         st = res.get("status") or 0

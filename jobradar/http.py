@@ -72,12 +72,19 @@ class Browser:
         if self._err:
             raise self._err
 
+    _pool: dict = {}
+
     @classmethod
-    def get(cls) -> "Browser":
+    def get(cls, slot: int = 0) -> "Browser":
+        """slot 0 is the shared browser; other slots give extra browsers for parallel work."""
         with cls._lock:
-            if cls._inst is None:
-                cls._inst = Browser()
-            return cls._inst
+            if slot == 0:
+                if cls._inst is None:
+                    cls._inst = Browser()
+                return cls._inst
+            if slot not in cls._pool:
+                cls._pool[slot] = Browser()
+            return cls._pool[slot]
 
     @classmethod
     def close_all(cls):
@@ -85,6 +92,9 @@ class Browser:
             if cls._inst is not None:
                 cls._inst._q.put(None)
                 cls._inst = None
+            for b in cls._pool.values():
+                b._q.put(None)
+            cls._pool = {}
 
     def _worker(self):
         try:
