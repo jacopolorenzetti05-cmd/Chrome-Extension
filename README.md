@@ -4,10 +4,17 @@ A daily tracker of **official** internship, graduate and entry-level job posting
 
 1. **Sports business** – partnerships, sponsorship, commercial, sales, licensing, hospitality, marketing roles at clubs, leagues, federations, agencies, sports media/data companies, sports brands and sponsor brands.
 2. **Wealth management / private banking** – client-facing, advisory, business-management and graduate roles.
+3. **General** – internships, graduate programmes and junior roles in business functions (consulting, strategy,
+   commercial, marketing, finance, operations, management trainee) at the CEMS corporate partners and other top
+   employers of business-school graduates (BCG, McKinsey, Accenture, P&G, Unilever, L'Oréal, Bosch, LVMH, Kering …).
+
+In sports and general, management-track roles (finance/controlling, strategy, projects, events, communications,
+operations) are kept as well; commercial and partnership roles still score highest. Today's new postings are
+shown first on the dashboard.
 
 Every posting is read **directly from the employer's own hiring system** (its ATS API or its own careers site) on the day it is shown. No job boards or aggregators are ever used, and every link shown is checked live (HTTP 200 and the job title must appear on the official page).
 
-- Dashboard (GitHub Pages): `https://<your-github-user>.github.io/<repo>/` – tabs *Sports*, *Wealth Management*, *Source health*.
+- Dashboard: a private claude.ai page refreshed every morning by a scheduled task – tabs *Sports*, *Wealth Management*, *General*, *Source health*.
 - Daily digest by e-mail (Gmail) and/or Telegram at ~06:30 UTC.
 - Full history in `data/jobradar.db` (SQLite), exported to `jobs.xlsx` / `jobs.csv`.
 
@@ -48,7 +55,7 @@ It opens the official careers page in a headless browser, looks at the links and
 
 ```yaml
 - name: Example FC
-  sector: sports            # sports | wealth
+  sector: sports            # sports | wealth | general
   segment: Club             # free text shown in the dashboard
   country: DE               # HQ country (used when a posting has no location)
   adapter: greenhouse       # see the table below
