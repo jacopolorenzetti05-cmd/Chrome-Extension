@@ -21,6 +21,9 @@ def my_status() -> dict:
 def display_status(rec: dict, today: dt.date) -> str:
     if rec["status"] == "removed":
         return "Removed"
+    if rec.get("last_seen") and rec["last_seen"] < today.isoformat():
+        # the source could not be read in today's run (blocked / down): not shown as active
+        return "Not re-checked today"
     if rec.get("deadline"):
         try:
             dl = dt.date.fromisoformat(rec["deadline"][:10])

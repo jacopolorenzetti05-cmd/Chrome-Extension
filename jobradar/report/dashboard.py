@@ -50,7 +50,7 @@ td.c-pay{min-width:140px}td.c-why{min-width:260px}td.c-title{min-width:230px}td.
 <nav><button data-tab="sports" class="on">Sports</button><button data-tab="wealth">Wealth Management</button><button data-tab="general">General</button><button data-tab="health">Source health</button></nav>
 <div class="bar" id="filters">
  <select id="fCountry"><option value="">All countries</option></select>
- <select id="fStatus"><option value="">All statuses (no removed)</option><option>New</option><option>Active</option><option>Closing soon</option><option value="Removed">Removed (history)</option></select>
+ <select id="fStatus"><option value="">All statuses (no removed)</option><option>New</option><option>Active</option><option>Closing soon</option><option value="Not re-checked today">Not re-checked today (source unreachable)</option><option value="Removed">Removed (history)</option></select>
  <select id="fRel"><option value="">Strong + maybe</option><option value="keep">Strong matches only</option><option value="maybe">Maybe bucket</option></select>
  <select id="fMine"><option value="">Any application status</option></select>
  <input id="fText" placeholder="Search company / role" size="22" aria-label="Search company or role">
@@ -68,7 +68,7 @@ try{const s=JSON.parse(localStorage.getItem("jr-f")||"{}");for(const k in s){if(
 function save(){try{const o={tab};["fCountry","fStatus","fRel","fMine","fText"].forEach(k=>o[k]=$("#"+k).value);localStorage.setItem("jr-f",JSON.stringify(o))}catch(e){}}
 function scClass(s){return s>=9?"s9":s>=7?"s7":s>=5?"s5":"s1"}
 function rows(){const c=$("#fCountry").value,st=$("#fStatus").value,rel=$("#fRel").value,mine=$("#fMine").value,q=$("#fText").value.toLowerCase();
- return DATA.postings.filter(p=>p.sector===tab && (st? p.display_status===st : p.display_status!=="Removed") && (!c||p.country===c) && (!rel||p.relevance===rel) && (!mine||p.my_status===mine) && (!q||(p.company+" "+p.title+" "+p.location).toLowerCase().includes(q)))
+ return DATA.postings.filter(p=>p.sector===tab && (st? p.display_status===st : (p.display_status!=="Removed" && p.display_status!=="Not re-checked today")) && (!c||p.country===c) && (!rel||p.relevance===rel) && (!mine||p.my_status===mine) && (!q||(p.company+" "+p.title+" "+p.location).toLowerCase().includes(q)))
  .sort((a,b)=>{if(sortKey==="score"){const na=a.display_status==="New"?1:0,nb=b.display_status==="New"?1:0;if(na!==nb)return nb-na}
   let x=a[sortKey]??"",y=b[sortKey]??"";if(typeof x==="number"||typeof y==="number"){x=+x||0;y=+y||0}return (x>y?1:x<y?-1:0)*sortDir||((b.score||0)-(a.score||0))})}
 function cell(p,k){switch(k){
@@ -123,15 +123,20 @@ def build(store: Store | None = None, out_dir=None) -> str:
               f"{sum(1 for p in active if p['sector']=='general')} general · "
               f"{sum(1 for h in health if h['health'].startswith('OK'))}/{len(health)} sources OK"
               + (f" · {unverified} hidden (URL check failed)" if unverified else ""))
+    shell = TEMPLATE.replace("<script>\nconst DATA = __DATA__;",
+                             '<script type="module">\nlet DATA;\ntry { DATA = await (await fetch("data.json", {cache: "no-store"})).json(); }\n'
+                             'catch (e) { document.getElementById("view").textContent = "Today\'s data could not be loaded. Reload the page."; throw e; }')
     page = (TEMPLATE.replace("__DATA__", json.dumps(payload, ensure_ascii=False).replace("</", "<\\/"))
             .replace("__UPDATED__", html.escape(payload["generated"][:16].replace("T", " ") + " UTC"))
             .replace("__COUNTS__", html.escape(counts)))
     (out_dir / "index.html").write_text(page, encoding="utf-8")
-    # claude.ai page version: same page without the document skeleton (the host adds its own)
-    head = page[page.index("<title>"): page.index("</head>")]
-    body = page[page.index("<body>") + len("<body>"): page.rindex("</body>")]
+    # claude.ai page version: a small shell (no skeleton – the host adds it) that loads data.json published with it
+    shell = (shell.replace("__UPDATED__", html.escape(payload["generated"][:16].replace("T", " ") + " UTC"))
+             .replace("__COUNTS__", html.escape(counts)))
+    head = shell[shell.index("<title>"): shell.index("</head>")]
+    body = shell[shell.index("<body>") + len("<body>"): shell.rindex("</body>")]
     (out_dir / "artifact.html").write_text(head + "\n" + body, encoding="utf-8")
-    (out_dir / "data.json").write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
+    (out_dir / "data.json").write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     (out_dir / ".nojekyll").write_text("")
     if own:
         store.close()
