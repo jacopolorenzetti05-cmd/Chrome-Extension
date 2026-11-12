@@ -2,7 +2,7 @@ name: Job Radar daily run
 
 on:
   schedule:
-    - cron: "30 4 * * *"     # every day 04:30 UTC (05:30 Milan, 06:30 in summer time)
+    - cron: "17 4 * * *"     # every day 04:17 UTC (05:17 Milan); off the :00/:30 peak, when GitHub drops schedules
   workflow_dispatch: {}
 
 permissions:
