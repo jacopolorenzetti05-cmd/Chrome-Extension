@@ -61,6 +61,11 @@ def fetch(src):
             r = http.post(_base(p) + "/jobs", json=body, headers={"Accept": "application/json"})
             if r.status_code != 200:
                 raise RuntimeError(f"workday HTTP {r.status_code} for {p['host']}/{p['site']}")
+            if "json" not in r.headers.get("content-type", ""):
+                if "currently unavailable" in r.text:
+                    raise RuntimeError("Workday is down for maintenance (\"Workday is currently unavailable\") – "
+                                       "postings return on the next run")
+                raise RuntimeError(f"workday returned a web page instead of job data for {p['host']}/{p['site']}")
             d = r.json()
             if total is None:
                 total = d.get("total", 0)
