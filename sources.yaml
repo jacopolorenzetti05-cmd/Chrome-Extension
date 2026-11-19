@@ -797,9 +797,10 @@ sources:
   sector: sports
   segment: Sponsor brand
   country: US
-  adapter: workday
+  adapter: phenom
   careers_url: https://careers.mastercard.com/us/en/
-  params: {host: mastercard.wd1.myworkdayjobs.com, tenant: mastercard, site: CorporateCareers}
+  params: {base_url: "https://careers.mastercard.com", lang: en_us, country: us, path: us/en, page_id: page11}
+  notes: Mastercard's own careers site (Phenom). Switched from Workday in Nov 2026 – Workday now blocks automated reading.
 - name: Flutter (Paddy Power, Betfair)
   sector: sports
   segment: Betting
@@ -831,11 +832,12 @@ sources:
   sector: wealth
   segment: Investment bank (wealth arm)
   country: GB
-  adapter: workday
+  adapter: html
   careers_url: https://search.jobs.barclays/
-  params: {host: barclays.wd3.myworkdayjobs.com, tenant: barclays, site: External_Career_Site_Barclays}
+  params: {list_urls: ["https://search.jobs.barclays/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=1000&Distance=50&ShowRadius=False&Keywords=private+bank&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0", "https://search.jobs.barclays/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=1000&Distance=50&ShowRadius=False&Keywords=wealth&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0", "https://search.jobs.barclays/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=1000&Distance=50&ShowRadius=False&Keywords=graduate&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0", "https://search.jobs.barclays/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=1000&Distance=50&ShowRadius=False&Keywords=intern&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0", "https://search.jobs.barclays/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=1000&Distance=50&ShowRadius=False&Keywords=summer&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0"],
+           link_pattern: "search\\.jobs\\.barclays/job/[^/]+/[^/]+/13015/\\d+", id_pattern: "/13015/(\\d+)", title_from: link, location_from_url: "/job/([^/]+)/", follow: false, max_jobs: 800}
   wealth_arm_only: true
-  notes: search.jobs.barclays is a front-end for Barclays' Workday site, which is read directly.
+  notes: Barclays' own careers site search.jobs.barclays (Radancy). Switched from Workday in Nov 2026 – Workday now blocks automated reading.
 - name: J.P. Morgan (incl. Private Bank)
   sector: wealth
   segment: Investment bank (wealth arm)
@@ -870,9 +872,11 @@ sources:
   sector: wealth
   segment: Private bank
   country: CH
-  adapter: workday
-  careers_url: https://www.vontobel.com/en-ch/about-vontobel/careers/
-  params: {host: vontobel.wd3.myworkdayjobs.com, tenant: vontobel, site: Vontobel_External_Career}
+  adapter: html
+  careers_url: https://www.vontobel.com/en-ch/about-vontobel/careers/open-positions/
+  params: {list_urls: ["https://www.vontobel.com/en-ch/about-vontobel/careers/open-positions/"],
+           link_pattern: "vontobel\\.com/en-ch/about-vontobel/careers/open-positions/\\d+-[^/?#]+/", id_pattern: "/open-positions/(\\d+)-"}
+  notes: Vontobel's own open-positions pages on vontobel.com. Switched from Workday in Nov 2026 – Workday now blocks automated reading.
 - name: EFG International
   sector: wealth
   segment: Private bank
@@ -917,12 +921,12 @@ sources:
   sector: wealth
   segment: Investment bank (wealth arm)
   country: US
-  adapter: workday
+  adapter: html
   careers_url: https://jobs.citi.com/
-  params: {host: citi.wd5.myworkdayjobs.com, tenant: citi, site: "2",
-           facet_filter: {Country_and_Jurisdiction: [United Kingdom, Ireland, Switzerland, Germany, Luxembourg, Italy, Austria, Monaco, Netherlands, Spain, France, Belgium, Jersey, Poland]}}
+  params: {list_urls: ["https://jobs.citi.com/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=1000&Distance=50&ShowRadius=False&Keywords=private+bank&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0", "https://jobs.citi.com/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=1000&Distance=50&ShowRadius=False&Keywords=wealth&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0", "https://jobs.citi.com/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=1000&Distance=50&ShowRadius=False&Keywords=intern&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0", "https://jobs.citi.com/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=1000&Distance=50&ShowRadius=False&Keywords=summer+analyst&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0", "https://jobs.citi.com/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=1000&Distance=50&ShowRadius=False&Keywords=graduate&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0"],
+           link_pattern: "jobs\\.citi\\.com/job/[^/]+/[^/]+/287/\\d+", id_pattern: "/287/(\\d+)", title_from: link, location_from_url: "/job/([^/]+)/", follow: false, max_jobs: 1500}
+  notes: Citi's own careers site jobs.citi.com (Radancy). Switched from Workday in Nov 2026 – Workday now blocks automated reading.
   wealth_arm_only: true
-  notes: Workday, restricted to European countries via Workday's own country facet.
 - name: BNP Paribas (Wealth Management, BNL, BGL)
   sector: wealth
   segment: Private bank
@@ -998,10 +1002,11 @@ sources:
   sector: general
   segment: Consulting (CEMS partner)
   country: IE
-  adapter: workday
+  adapter: accenture
   careers_url: https://www.accenture.com/it-it/careers/jobsearch
-  params: {host: accenture.wd103.myworkdayjobs.com, tenant: accenture, site: AccentureCareers, search_terms: [intern, internship, graduate, trainee, praktikum, stage, tirocinio, werkstudent, junior, "entry level"], max_results: 400}
-  notes: accenture.com job search runs on Workday; only intern/graduate/junior searches are paged.
+  params: {markets: [[Italia, it-it, it], [Deutschland, de-de, de], [Switzerland, ch-en, en], [Schweiz, ch-de, de], ["Österreich", at-de, de],
+                     [United Kingdom, gb-en, en], [Ireland, ie-en, en], [Luxembourg, lu-en, en], [Netherlands, nl-en, en], ["España", es-es, es], [Belgium, be-en, en]]}
+  notes: accenture.com's own job search API, all jobs in these European markets. Switched from Workday in Nov 2026 – Workday now blocks automated reading. France is not offered by this API.
 - name: Boston Consulting Group
   sector: general
   segment: Consulting (CEMS partner)
@@ -1013,9 +1018,10 @@ sources:
   sector: general
   segment: FMCG (CEMS partner)
   country: US
-  adapter: workday
-  careers_url: https://www.pgcareers.com/
-  params: {host: pg.wd5.myworkdayjobs.com, tenant: pg, site: "1000", search_terms: [intern, internship, graduate, trainee, praktikum, stage, tirocinio, werkstudent, junior, "entry level"], max_results: 400}
+  adapter: phenom
+  careers_url: https://www.pgcareers.com/global/en/search-results
+  params: {base_url: "https://www.pgcareers.com", lang: en_global, country: global, path: global/en, page_id: page16}
+  notes: P&G's own careers site pgcareers.com (Phenom). Switched from Workday in Nov 2026 – Workday now blocks automated reading.
 - name: Bosch
   sector: general
   segment: Industrial (CEMS partner)

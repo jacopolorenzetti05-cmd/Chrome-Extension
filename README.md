@@ -74,11 +74,12 @@ It opens the official careers page in a headless browser, looks at the links and
 | personio | `company`, `tld` (de/com) |
 | teamtailor | `company` or `base_url` (custom domain) |
 | ashby | `org` |
-| workday | `host`, `tenant`, `site` (from `https://<host>/<lang>/<site>`), optional `facet_filter` |
+| workday | `host`, `tenant`, `site` (from `https://<host>/<lang>/<site>`), optional `facet_filter`. Since Nov 2026 Workday blocks automated reading (Cloudflare check, HTTP 429): prefer the employer's own careers site when it has one (Phenom, Radancy `html`, own API) |
 | successfactors | `mode: rmk` + `base_url` · `mode: classic` + `host` + `company` · `mode: feed` + `feed_url` |
 | oracle | `host` (`xxx.fa.oraclecloud.com`), `site` (`CX_1`) – Europe only by default |
 | pinpoint | `company` |
 | jobylon | `list_urls` (official page that links to emp.jobylon.com) |
+| accenture | `markets` – list of `[country as the local site spells it, country site, language]` |
 | phenom, eightfold, gs, beesite, brassring, hibob, softgarden, digitalrecruiters | see the module docstring in `jobradar/adapters/` |
 | html | `list_urls`, `link_pattern` (regex for job links), optional `render: true` for JavaScript pages |
 
