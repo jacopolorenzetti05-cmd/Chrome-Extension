@@ -1,98 +1,82 @@
-Job Radar – 2026-11-24
+Job Radar – 2026-11-25
 
-NEW POSTINGS (24)
-[10] Accenture – Praktikum Business Development und Sales Public Sector (all genders) | Vienna, Österreich | 180€ /month (posted) | German, English
-    https://www.accenture.com/at-de/careers/jobdetails?id=R00366927_de&title=Praktikum+Business+Development+und+Sales+Public+Sector+%28all+genders%29
-[10] HEINEKEN – Junior Key Account Manager Retail (w/m/d) | Switzerland | CHF 75,000–90,000 / year (est.) | German, English, Italian, French
-    https://careers.theheinekencompany.com/job/heineken-switzerland/switzerland/junior-key-account-manager-retail-wmd
-[10] Roland Berger – Junior Consultant | Milan, IT | EUR 28,000–35,000 / year (est.) | English, Italian
-    https://www.rolandberger.com/en/join/all-jobs/junior-consultant-ref4563r
-[10] Schroders – 2027 Finance (within Wealth Management) Graduate Programme | London, London, United Kingdom | £45,000 /year (posted) | English (likely)
-    https://ekbq.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_2/job/2521
-[9] Accenture – Stage Sales and Business Development per il mercato Financial Services | Milano, Italia | EUR 800–1,200 / month (est.) | Italian (likely)
-    https://www.accenture.com/it-it/careers/jobdetails?id=R00074273_it&title=Stage+Sales+and+Business+Development+per+il+mercato+Financial+Services
-[9] Bosch – Pflichtpraktikum im Bereich Projektmanagement – Digitalisierung und Automatisierung in der Logistik | Bühl, BW, DE | EUR 1,300–2,100 / month (est.) | German, English
-    https://jobs.smartrecruiters.com/BoschGroup/744000163449760-pflichtpraktikum-im-bereich-projektmanagement-digitalisierung-und-automatisierung-in-der-logistik-
+NEW POSTINGS (13)
+[10] Bosch – Praktikum Digital & Performance Marketing - Google & Meta Ads | Wernau (Neckar), BW, DE | EUR 1,300–2,100 / month (est.) | German, English
+    https://jobs.smartrecruiters.com/BoschGroup/744000163690467-praktikum-digital-performance-marketing-google-meta-ads
+[10] Bosch – Praktikum im B2B-Marketing bei Bosch Home Comfort – Partner Experience | Wernau (Neckar), BW, DE | EUR 1,300–2,100 / month (est.) | German
+    https://jobs.smartrecruiters.com/BoschGroup/744000163646659-praktikum-im-b2b-marketing-bei-bosch-home-comfort-partner-experience
+[10] HEINEKEN – Junior Key Account Manager HoReCa (w/m/d) | Switzerland | CHF 75,000–90,000 / year (est.) | German, English, French, Italian
+    https://careers.theheinekencompany.com/job/heineken-switzerland/switzerland/junior-key-account-manager-horeca-wmd
 [9] Bosch – Pflichtpraktikum im Projektmanagement | Bietigheim-Bissingen, BW, DE | EUR 1,300–2,100 / month (est.) | German, English
-    https://jobs.smartrecruiters.com/BoschGroup/744000163258855-pflichtpraktikum-im-projektmanagement
-[9] Kering – KERING Finance Transformation Intern | Milano, Milano, Italy | EUR 800–1,200 / month (est.) | English, Italian
-    https://careers.kering.com/careers/job/563705893188906
-[8] Accenture – Neolaureat* - Business Analyst Automotive | Torino, Italia | 28.099,93€ /year (posted) | English
-    https://www.accenture.com/it-it/careers/jobdetails?id=R00295295_it&title=Neolaureat*+-+Business+Analyst+Automotive
-[8] Accenture – Junior Project Management Office / PMO Analyst (all genders) | Kronberg, Deutschland | Berlin, Deutschland | Dresden, Deutschland | Dusseldorf, Deutschland | Essen, Deutschland | Hamburg, Deutschland | Munich, Deutschland | Stuttgart, Deutschland | EUR 45,000–55,000 / year (est.) | German, English
-    https://www.accenture.com/de-de/careers/jobdetails?id=R00374512_de&title=Junior+Project+Management+Office+%2F+PMO+Analyst+%28all+genders%29
-[8] Bosch – Internship in AI-Driven Innovation Management | Leinfelden-Echterdingen, BW, DE | EUR 1,300–2,100 / month (est.) | English (likely)
-    https://jobs.smartrecruiters.com/BoschGroup/744000163456519-internship-in-ai-driven-innovation-management
-[8] Ferrero – INTERNSHIP Business Intelligence & Data Analyst (Starting from March) | Senningerberg, LU | EUR 1,500–2,200 / month (est.) | English
-    https://www.ferrerocareers.com/int/en/jobs/internship-business-intelligence-data-analyst-starting-march
-[8] PUMA – Internship Sales | Utrecht, Netherlands | EUR 600–1,200 / month (est.) | English (likely)
-    https://about.puma.com/en/jobs/internship-sales-r44602
-[8] SPORTFIVE – (Pflicht-)Praktikantin / Praktikant (W/D/M) Sales - Team VfB Stuttgart |  | EUR 800–1,500 / month (est.) | languages n/a
-    https://jobs.sportfive.com/job/Stuttgart-%28Pflicht-%29Praktikantin-Praktikant-%28WDM%29-Sales-Team-VfB-Stuttgart-70372/1377772655/
-[8] SPORTFIVE – (Pflicht-)Praktikantin / Praktikant (W/D/M) Pre-Sales - Team VfB Stuttgart |  | EUR 800–1,500 / month (est.) | languages n/a
-    https://jobs.sportfive.com/job/Stuttgart-%28Pflicht-%29Praktikantin-Praktikant-%28WDM%29-Pre-Sales-Team-VfB-Stuttgart-70372/1329290755/
-[7] Goldman Sachs – Private Wealth Management, GSBZ Sales Management, Analyst, Zurich | Zurich, Switzerland | CHF 75,000–90,000 / year (est.) | English (likely)
-    https://higher.gs.com/roles/188648
-[6] HEINEKEN – Praktikum Brand Management - Schweizer Biermarken (m/w/d) | Switzerland | CHF 2,500–4,000 / month (est.) | German (likely)
-    https://careers.theheinekencompany.com/job/heineken-switzerland/switzerland/praktikum-brand-management-schweizer-biermarken-mwd
-[6] Procter & Gamble – Finance Managerial Internship | BELGRADE, Serbia | EUR 800–1,500 / month (est.) | English (likely)
-    https://www.pgcareers.com/global/en/job/R000163519/Finance-Managerial-Internship
-[6] Red Bull – Internship Global Music Marketing | Fuschl, Salzburg, AT | € 2.221,00 /month (posted) | English
-    https://jobs.smartrecruiters.com/RedBull/744000163390684-internship-global-music-marketing
-[6] Red Bull – On Premise Sales Specialist - Musketeer | Athens, GR | EUR 28,000–40,000 / year (est.) | English (likely)
-    https://jobs.smartrecruiters.com/RedBull/744000163272740-on-premise-sales-specialist-musketeer
-[6] SPORTFIVE – Stage - Assistant.e Marketing B2B F/H |  | EUR 800–1,500 / month (est.) | languages n/a
-    https://jobs.sportfive.com/job/Decines-Stage-Assistant_e-Marketing-B2B-FH-69150/1377827055/
-[6] SPORTFIVE – Stage Chargé.e de Communication (F/H) |  | EUR 800–1,500 / month (est.) | languages n/a
-    https://jobs.sportfive.com/job/Boulogne-Billancourt-Stage-Charg%C3%A9_e-de-Communication-%28FH%29-92100/1370323355/
-[5] Kering – BALENCIAGA - Global Data Client & Insights: Data & Analytics Intern - January 2027 (F/M) | Paris, France | EUR 700–1,600 / month (est.) | English
-    https://careers.kering.com/careers/job/563705892754835
-[5] Raiffeisen Bank International – Student Job (f/m/x) - Hybrid Event Service (15 h/week) |  | EUR 2,619.73 /year (posted) | English (likely)
-    https://jobs.rbinternational.com/job/Wien-Student-Job-%28fmx%29-Hybrid-Event-Service-%2815-hweek%29-Vien-1030/1378367657/
+    https://jobs.smartrecruiters.com/BoschGroup/744000163615530-pflichtpraktikum-im-projektmanagement
+[8] Bosch – Mandatory Internship in Purchasing | Stuttgart, BW, DE | EUR 1,300–2,100 / month (est.) | German, English
+    https://jobs.smartrecruiters.com/BoschGroup/744000163620280-mandatory-internship-in-purchasing
+[8] Bosch – Praktikum im Bereich Interne Kommunikation | Reutlingen, BW, DE | EUR 1,300–2,100 / month (est.) | German (likely)
+    https://jobs.smartrecruiters.com/BoschGroup/744000163501454-praktikum-im-bereich-interne-kommunikation
+[8] L'Oréal – Marketing Intern Kyiv, Kyiv City, Ukraine | Kyiv | EUR 800–1,500 / month (est.) | languages n/a
+    https://careers.loreal.com/en/job/kyiv/marketing-intern/3456/47224830976
+[8] Red Bull – Brand Marketing Graduate | Amsterdam, NH, NL | EUR 40,000–52,000 / year (est.) | English (likely)
+    https://jobs.smartrecruiters.com/RedBull/744000163636939-brand-marketing-graduate
+[6] Amplifon – Retail Strategy & Operations Intern | Barcelona, Barcelona, Spain | 120 € /month (posted) | English, Spanish
+    https://efuf.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/job/22003
+[6] L'Oréal – Retail Activation Graduate - Consumer Products Division Oslo, Oslo County, Norway | Oslo | EUR 30,000–45,000 / year (est.) | languages n/a
+    https://careers.loreal.com/en/job/oslo/retail-activation-graduate-consumer-products-division/3456/47224821440
+[6] Procter & Gamble – Stage de 6 mois - SUPPLY CHAIN - Master 1 ou 2 - 1600€/mois (H/F) | PARIS, France | EUR 700–1,600 / month (est.) | French (likely)
+    https://www.pgcareers.com/global/en/job/R000163597/Stage-de-6-mois-SUPPLY-CHAIN-Master-1-ou-2-1600-mois-H-F
+[4] Decathlon (France HQ) – Marketing Project Leader Assistant - Decathlon Kids | Marcq-en-Barœul, Hauts-de-France, France | EUR 36,000–45,000 / year (est.) | French (likely)
+    https://joinus.decathlon.fr/en/annonce/4708455-marketing-project-leader-assistant-decathlon-kids-marcq-en-barœul
+[4] Decathlon (France HQ) – Marketing Project Leader Assistant - Decathlon Kids | Marcq-en-Barœul, Hauts-de-France, France | EUR 36,000–45,000 / year (est.) | French (likely)
+    https://joinus.decathlon.fr/en/annonce/4708431-marketing-project-leader-assistant-decathlon-kids-marcq-en-barœul
 
-NEW 'MAYBE' POSTINGS (32)
-[6] PUMA – Manager Commercial Enablement Central Europe | Herzogenaurach, Germany | EUR 45,000–55,000 / year (est.) | English (likely)
-    https://about.puma.com/en/jobs/manager-commercial-enablement-central-europe-r44582
-[6] SV Werder Bremen – Pflichtpraktikant*in (m/w/d) im Bereich Organisation im Leistungszentrum | Bremen, Bremen, Deutschland | EUR 1,300–2,100 / month (est.) | German (likely)
-    https://karriere.werder.de/jobs/68926951/Pflichtpraktikant-in-m-w-d-im-Bereich-Organisation-im-Leistungszentrum/
-[6] UBS – Global Family & Institutional Wealth, Ultra High Net Worth | Switzerland - Ticino, Switzerland - Western Switzerland, Switzerland - Zürich | CHF 75,000–90,000 / year (est.) | German, English
-    https://jobs.ubs.com/TGnewUI/Search/home/HomeWithPreLoad?partnerid=25008&siteid=5012&PageType=JobDetails&jobid=350560
-[5] City Football Group – Venue Sales Executive B2B | Manchester, GB | GBP 28,000–38,000 / year (est.) | English (likely)
-    https://careers.cityfootballgroup.com/job/Manchester-Venue-Sales-Executive-B2B/1459833833/
-[5] Genius Sports – Sales Development Representative - Sportsbook, EMEA | London, England, United Kingdom | London | GBP 28,000–38,000 / year (est.) | English (likely)
-    https://boards.greenhouse.io/geniussports/jobs/7817090003?gh_jid=7817090003
-[5] Goldman Sachs – Goldman Sachs Asset & Wealth Management - Alternatives Capital Formation - Analyst - London | London, United Kingdom | GBP 28,000–38,000 / year (est.) | English (likely)
-    https://higher.gs.com/roles/175889
-[5] HEINEKEN – Business Development Manager - Star Pubs - Leeds | United Kingdom | £55,000 /year (posted) | English (likely)
-    https://careers.theheinekencompany.com/job/heineken-uk/united-kingdom/business-development-manager-star-pubs-leeds
-[5] IRFU – Hospitality Manager | Dublin, Ireland | EUR 33,000–42,000 / year (est.) | English
-    https://career55.sapsf.eu/career?company=irishrugby&career_ns=job_listing&career_job_req_id=1165&navBarLevel=JOB_SEARCH
-[5] Schroders – Client Advisor (Business Owners & Entrepreneurs) | London, United Kingdom | GBP 28,000–38,000 / year (est.) | English (likely)
-    https://ekbq.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_2/job/2426
-[4] Accenture – Telco & Media Analyst | Milano, Italia | Roma, Italia | 28.099,93€ /year (posted) | English
-    https://www.accenture.com/it-it/careers/jobdetails?id=R00374349_it&title=Telco+%26+Media+Analyst
-[4] Barilla – Trade Marketing & Sales Analyst South Adriatic |  | EUR 28,000–40,000 / year (est.) | English
-    https://jobs.barillagroup.com/job/Zagreb-Trade-Marketing-&-Sales-Analyst-South-Adriatic-Zagr-Zagreb/1441702833/
-[4] Boston Consulting Group – Oman Operations Junior Specialist | Al Qurum, Masqat, Oman | EUR 28,000–40,000 / year (est.) | languages n/a
-    https://careers.bcg.com/global/en/job/66383/Oman-Operations-Junior-Specialist
-[4] Citi – Wealth Relationship Manager SAFE Act - Culver City | Culver City | EUR 28,000–40,000 / year (est.) | languages n/a
-    https://jobs.citi.com/job/culver-city/wealth-relationship-manager-safe-act-culver-city/287/103700914848
-[4] Citi – AVP, Wealth Relationship Manager - LOS GATOS | Los Gatos | EUR 28,000–40,000 / year (est.) | languages n/a
-    https://jobs.citi.com/job/los-gatos/avp-wealth-relationship-manager-los-gatos/287/103688980000
-[4] Citi – AVP, Wealth Relationship Manager - SAN JOSE (ALMADEN VALLEY) | San Jose | EUR 28,000–40,000 / year (est.) | languages n/a
-    https://jobs.citi.com/job/san-jose/avp-wealth-relationship-manager-san-jose-almaden-valley/287/103688979984
+NEW 'MAYBE' POSTINGS (15)
+[6] Bayer 04 Leverkusen – Pflichtpraktikant Mediengestalter Bild und Ton (m/w/d) | Leverkusen, Nordrhein-Westfalen, Deutschland | EUR 1,300–2,100 / month (est.) | German (likely)
+    https://bayer04.softgarden.io/job/68960231?l=de
+[6] Ferrero – Pricing Business Analyst | Luxembourg, LU | EUR 48,000–58,000 / year (est.) | German, English, Italian, French
+    https://www.ferrerocareers.com/int/en/jobs/pricing-business-analyst
+[6] HEINEKEN – Area Sales Manager (w/m/d) Out of Home / Gastronomie für die Region Frankfurt am Main & Umgebung | Germany | 40,00 € /month (posted) | German (likely)
+    https://careers.theheinekencompany.com/job/heineken-germany/germany/area-sales-manager-wmd-out-home-gastronomie-fur-die-region-frankfurt
+[6] Red Bull – Außendienst Out of Home / Field Sales Reacher - Bremen | Bremen, HB, DE | EUR 45,000–55,000 / year (est.) | German, English
+    https://jobs.smartrecruiters.com/RedBull/744000163501339-au-endienst-out-of-home-field-sales-reacher-bremen
+[5] Coca-Cola Europacific Partners – Werkstudent Nationale Distribution und Transportation (all genders), befr. bis 31.12.2027, Berlin | Berlin Friedrichshain, Berlin, Germany | EUR 1,300–2,100 / month (est.) | German, English
+    https://www.ccep.jobs/en/job/friedrichshain/werkstudent-nationale-distribution-und-transportation-all-genders-befr-bis-31-12-2027-berlin/1299/47203601920
+[5] HEINEKEN – Business Development Manager - Star Pubs - Edinburgh & East Lothian | United Kingdom | £55,000 /year (posted) | English (likely)
+    https://careers.theheinekencompany.com/job/heineken-uk/united-kingdom/business-development-manager-star-pubs-edinburgh-east-lothian
+[5] Kering – KERING Strategy Analyst | Paris, France | EUR 36,000–45,000 / year (est.) | English, Italian, French, Mandarin
+    https://careers.kering.com/careers/job/563705893215059
+[5] adidas – Sales Consultant Mall of the Netherlands | Netherlands, Netherlands | EUR 38,000–48,000 / year (est.) | English
+    https://jobs.adidas-group.com/job/Netherlands-Sales-Consultant-Mall-of-the-Netherlands-ZH/1423079533/
+[4] Coca-Cola HBC – Seasonal Sales Agent Bansko |  | EUR 28,000–40,000 / year (est.) | English (likely)
+    https://careers.coca-colahellenic.com/en_US/careers/ProjectDetail/Seasonal-Sales-Agent-Bansko/27931
+[4] Mastercard – Manager, Product Management - Client Data Onboarding, BE&O | Dublin 18, Ireland | Gurgaon, India, 122002 | EUR 33,000–42,000 / year (est.) | English (likely)
+    https://careers.mastercard.com/us/en/job/R-293039/Manager-Product-Management-Client-Data-Onboarding-BE-O
+[3] Coca-Cola HBC – External Communication Specialist |  | EUR 28,000–40,000 / year (est.) | English
+    https://careers.coca-colahellenic.com/en_US/careers/ProjectDetail/External-Communication-Specialist/27724
+[3] HEINEKEN – Commercial Sédentaire H/F - CDI - Bouc Bel Air (13) | France | EUR 36,000–45,000 / year (est.) | French (likely)
+    https://careers.theheinekencompany.com/job/heineken-france/france/commercial-sedentaire-hf-cdi-bouc-bel-air-13
+[3] HEINEKEN – Commercial CHR H/F - CDI - Thionville / Longwy (57/54) | France | EUR 36,000–45,000 / year (est.) | French (likely)
+    https://careers.theheinekencompany.com/job/heineken-france/france/commercial-chr-hf-cdi-thionville-longwy-5754
+[3] Mastercard – Manager - Global Product Management | Portugal, P-1269-046 | EUR 18,000–24,000 / year (est.) | English (likely)
+    https://careers.mastercard.com/us/en/job/R-289065/Manager-Global-Product-Management
+[2] Red Bull – Athlete Marketing Manager | Copenhagen, DK | EUR 28,000–40,000 / year (est.) | Dutch (likely)
+    https://jobs.smartrecruiters.com/RedBull/744000163641164-athlete-marketing-manager-
 
-CLOSING WITHIN 7 DAYS (8)
-[8] Ferrero – INTERNSHIP Business Intelligence & Data Analyst (Starting from March) | Senningerberg, LU | EUR 1,500–2,200 / month (est.) | English
-    https://www.ferrerocareers.com/int/en/jobs/internship-business-intelligence-data-analyst-starting-march  (deadline 2026-11-24)
+CLOSING WITHIN 7 DAYS (11)
+[6] Ferrero – Pricing Business Analyst | Luxembourg, LU | EUR 48,000–58,000 / year (est.) | German, English, Italian, French
+    https://www.ferrerocareers.com/int/en/jobs/pricing-business-analyst  (deadline 2026-11-25)
+[6] Lombard Odier – Generative AI Intern | Geneva, Switzerland | CHF 2,500–4,000 / month (est.) | English (likely)
+    https://lombardodier.wd3.myworkdayjobs.com/en-US/Lombard_Odier_Careers/job/Geneva/Generative-AI-Intern_R0007656  (deadline 2026-11-30)
 [5] Coca-Cola Europacific Partners – Field Sales Representative, St Albans | St Albans, East Of England, United Kingdom | £32,484 /year (posted) | English (likely)
     https://www.ccep.jobs/en/job/st-albans/field-sales-representative-st-albans/1299/46968480320  (deadline 2026-11-30)
 [5] Coca-Cola Europacific Partners – Field Sales Representative, Gillingham | Maidstone, South East England, United Kingdom | £30,221 /year (posted) | English (likely)
     https://www.ccep.jobs/en/job/maidstone/field-sales-representative-gillingham/1299/46994278080  (deadline 2026-11-30)
 [5] Coca-Cola Europacific Partners – Field Sales Representative, Tunbridge Wells | Tunbridge Wells , South East England, United Kingdom | £30,221 /year (posted) | English (likely)
     https://www.ccep.jobs/en/job/royal-tunbridge-wells/field-sales-representative-tunbridge-wells/1299/46991500992  (deadline 2026-11-30)
+[5] Coca-Cola Europacific Partners – Field Sales Representative, Blackpool | Blackpool, North West, United Kingdom | £30,221 /year (posted) | English (likely)
+    https://www.ccep.jobs/en/job/blackpool/field-sales-representative-blackpool/1299/47026880576  (deadline 2026-12-02)
 [5] Coca-Cola Europacific Partners – Field Sales Representative, Maidstone | Maidstone, South East England, United Kingdom | £30,221 /year (posted) | English (likely)
     https://www.ccep.jobs/en/job/maidstone/field-sales-representative-maidstone/1299/47020767040  (deadline 2026-11-30)
+[5] Coca-Cola Europacific Partners – Field Sales Representative, Yeovil | Somerset, South-West England, United Kingdom | £30,221 /year (posted) | English (likely)
+    https://www.ccep.jobs/en/job/england/field-sales-representative-yeovil/1299/47020766912  (deadline 2026-12-02)
 [4] Formula E – Ticketing Performance Manager | London, United Kingdom | GBP 28,000–38,000 / year (est.) | English (likely)
     https://careers.fiaformulae.com/jobs/8704050-ticketing-performance-manager  (deadline 2026-11-25)
 [3] EDP – Energy Pricing Analyst | Lisbon, PT | EUR 18,000–24,000 / year (est.) | English (likely)
@@ -100,7 +84,7 @@ CLOSING WITHIN 7 DAYS (8)
 [3] EDP – Health & Safety Analyst | Madrid, ES | EUR 25,000–33,000 / year (est.) | English
     https://jobs.edp.com/job/Madrid-Health-&-Safety-Analyst/1447532733/  (deadline 2026-11-30)
 
-SOURCES WITH PROBLEMS (38)
+SOURCES WITH PROBLEMS (39)
   Airbus (workday): ERROR RuntimeError: workday HTTP 429 for ag.wd3.myworkdayjobs.com/Airbus
   EF Education First (oracle): disabled 
   Electrolux Group (phenom): disabled 
@@ -128,20 +112,21 @@ Call log:
   European Football Clubs (EFC/ECA) (jobylon): ERROR RuntimeError: HTTP 404 on https://www.efcfootball.com/en/careers/current-opportunities
   FC Barcelona (html): disabled 
   FC Bayern München (successfactors): ERROR RuntimeError: HTTP 403
-  IMG (incl. IMG Licensing) (workday): ERROR RuntimeError: workday HTTP 429 for wwecorp.wd5.myworkdayjobs.com/IMG
+  Formula 1 (html): ERROR RuntimeError: HTTP 403 on https://corp.formula1.com/careers/
   Leinster Rugby (html): disabled 
   Olympic Channel Services / OBS (teamtailor): ZERO (usually has jobs) 
   RCS Sport / RCS MediaGroup (html): ERROR RuntimeError: HTTP 404 on https://www.rcsmediagroup.it/lavora-con-noi/
   Real Madrid (html): disabled 
   Relevent Sports (html): ERROR RuntimeError: HTTP 404 on https://www.relevent.com/careers
+  SPORTFIVE (html): ERROR RuntimeError: HTTP 403 on https://jobs.sportfive.com/
+  The Coca-Cola Company (workday): ERROR RuntimeError: workday HTTP 429 for coke.wd1.myworkdayjobs.com/coca-cola-careers
   TSG Hoffenheim (html): ERROR RuntimeError: HTTP 403 on https://www.tsg-hoffenheim.de/tsg/karriere/uebersicht
   UC3 (UEFA Club Competitions) (jobylon): ZERO (usually has jobs) 
+  Wasserman (workday): ERROR RuntimeError: workday HTTP 429 for teamwass.wd5.myworkdayjobs.com/wassermancareers
   WME Group (workday): ERROR RuntimeError: workday HTTP 429 for wmeimg.wd1.myworkdayjobs.com/WMEGRP
   WTA (html): disabled 
-  Banca Generali (html): ERROR RuntimeError: HTTP 403 on https://www.bancagenerali.com/careers/work-with-us
   Bank of Ireland (incl. Davy) (html): ZERO (usually has jobs) 
   BNP Paribas (Wealth Management, BNL, BGL) (html): ERROR RuntimeError: HTTP 403 on https://group.bnpparibas/en/careers/all-job-offers?q=wealth
   EFG International (html): ERROR RuntimeError: HTTP 403 on https://www.efginternational.com/careers.html
   Julius Baer (workday): ERROR RuntimeError: workday HTTP 429 for juliusbaer.wd3.myworkdayjobs.com/External
-  Lombard Odier (workday): ERROR RuntimeError: workday HTTP 429 for lombardodier.wd3.myworkdayjobs.com/Lombard_Odier_Careers
   Rothschild & Co (workday): ERROR RuntimeError: workday HTTP 429 for rothschildandco.wd3.myworkdayjobs.com/Rothschildandco_Lateral
